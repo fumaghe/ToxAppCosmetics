@@ -22,7 +22,7 @@ def find_ingredient_id(ingredient_name, data_file_path):
 
 # Example usage
 ingredient_name_to_find = "Apricot Kernel Oil Propylene Glycol Esters"  # Replace with the actual ingredient name
-data_file_path = "C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt"  # Replace with your actual file path (ensure backslashes are escaped)
+data_file_path = "C:\\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt"  # Replace with your actual file path (ensure backslashes are escaped)
 
 ingredient_id = find_ingredient_id(ingredient_name_to_find, data_file_path)
 
