@@ -85,7 +85,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
                 other_values = noael_dict[ingredient_id].get('other', [])
                 print(f"Most common NOAEL: {most_common_noael} mg/kg")
                 for value in other_values:
-                    print(f"Other NOAEL value: {value} mg/kg")
+                    print(f"Other NOAEL value: {value}")
             else:
                 url = f"https://cir-reports.cir-safety.org/cir-ingredient-status-report/?id={ingredient_id}"
                 status_link = extract_first_status_link(url)
@@ -119,7 +119,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
         print(f"Ingredient containing '{ingredient_name}' not found in the data file.")
 
 # Example usage
-ingredient_name = "1,10-Decanediol"
+ingredient_name = "Kluyveromyces Extract"
 data_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/DATASET.txt"
 noael_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/NOAELVALUES.txt"
 
