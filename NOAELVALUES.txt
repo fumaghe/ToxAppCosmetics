@@ -10,3 +10,5 @@ bcfff75d-0434-4372-8302-348335fb3c8e:most_common:4000
 bcfff75d-0434-4372-8302-348335fb3c8e:other:459,400,0.5,14-15AE7was,0.125%in,1,25,1200,14-day,500,1500,1250,1650,50,0.375,1.6,0.1%,,300
 e2a97d84-d244-4ec4-a1f5-99cb0b43ad54:most_common_NOAEL:5%
 e2a97d84-d244-4ec4-a1f5-99cb0b43ad54:other_NOAEL:1%,4.4,4.,50,000,3044,3670,2,000
+f13abdcd-34cf-442c-8fc2-4e28d41a4381:most_common_NOAEL:400
+f13abdcd-34cf-442c-8fc2-4e28d41a4381:other_NOAEL:1%,300,1200,25,1250mg,0.1%,,0.125%inthediet,whichcorrespondedto102mg/kgperbw/d,300mg/kgfor,1500mg/kgper,1.6g/kg,0.5%,,500,785,and50to162mg/kgbwinrats,4000,4000mg/kgper
