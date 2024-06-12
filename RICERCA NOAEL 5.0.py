@@ -29,8 +29,8 @@ def extract_text_from_pdf(pdf_content):
         text += page.extract_text() or ""
     return text
 
-def find_noael_values(text):
-    pattern = r'NOAEL\s*[:/]?'
+def find_values(text, keyword):
+    pattern = fr'{keyword}\s*[:/]?'
     matches = re.finditer(pattern, text, re.IGNORECASE)
     values = []
     for match in matches:
@@ -42,7 +42,7 @@ def find_noael_values(text):
                 break
     return values
 
-def find_most_common_noael(values):
+def find_most_common_value(values):
     if not values:
         return None
     count = Counter(values)
@@ -50,19 +50,19 @@ def find_most_common_noael(values):
     most_common_values = [value for value, freq in count.items() if freq == most_common_count]
     return most_common_values, most_common_count
 
-def check_and_append_noael(ingredient_id, noael_value, noael_file_path):
-    with open(noael_file_path, 'a', encoding='utf-8') as file:
-        file.write(f"{ingredient_id}:{noael_value}\n")
+def check_and_append_value(ingredient_id, value_type, value, file_path):
+    with open(file_path, 'a', encoding='utf-8') as file:
+        file.write(f"{ingredient_id}:{value_type}:{value}\n")
 
 def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_file_path):
-    # Load NOAEL values from the NOAEL file into a dictionary
-    noael_dict = {}
+    # Load NOAEL and LD50s values from the NOAEL file into a dictionary
+    value_dict = {}
     with open(noael_file_path, 'r', encoding='utf-8') as file:
         for line in file:
             if ':' in line:
-                id_value_pair = line.strip().split(':')
-                if len(id_value_pair) == 2:
-                    noael_dict[id_value_pair[0]] = id_value_pair[1]
+                parts = line.strip().split(':')
+                if len(parts) == 3:
+                    value_dict[parts[0]] = (parts[1], parts[2])
 
     with open(data_file_path, 'r', encoding='utf-8') as file:
         ingredients = []
@@ -75,9 +75,10 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
 
     if ingredients:
         for ingredient_name, ingredient_id in set(ingredients):
-            if ingredient_id in noael_dict:
+            if ingredient_id in value_dict:
                 print(f"Ingredient name: {ingredient_name}")
-                print(f"NOAEL value: {noael_dict[ingredient_id]} mg/kg (from file)")
+                value_type, value = value_dict[ingredient_id]
+                print(f"{value_type} value: {value} mg/kg (from file)")
             else:
                 url = f"https://cir-reports.cir-safety.org/cir-ingredient-status-report/?id={ingredient_id}"
                 status_link = extract_first_status_link(url)
@@ -87,17 +88,25 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
                         response.raise_for_status()
                         
                         pdf_text = extract_text_from_pdf(response.content)
-                        noael_values = find_noael_values(pdf_text)
-                        most_common_noael, most_common_count = find_most_common_noael(noael_values)
+                        noael_values = find_values(pdf_text, 'NOAEL')
+                        most_common_noael, most_common_count = find_most_common_value(noael_values)
                         
                         if noael_values:
                             for value in most_common_noael:
                                 print(f"Ingredient name: {ingredient_name}")
                                 print(f"NOAEL value: {value} mg/kg")
-                                check_and_append_noael(ingredient_id, value, noael_file_path)
+                                check_and_append_value(ingredient_id, 'NOAEL', value, noael_file_path)
                         else:
-                            print(f"Ingredient name: {ingredient_name}")
-                            print("No NOAEL values found.")
+                            ld50s_values = find_values(pdf_text, 'LD50s')
+                            most_common_ld50s, most_common_count = find_most_common_value(ld50s_values)
+                            if ld50s_values:
+                                for value in most_common_ld50s:
+                                    print(f"Ingredient name: {ingredient_name}")
+                                    print(f"LD50s value: {value} mg/kg")
+                                    check_and_append_value(ingredient_id, 'LD50s', value, noael_file_path)
+                            else:
+                                print(f"Ingredient name: {ingredient_name}")
+                                print("No NOAEL or LD50s values found.")
                     except requests.RequestException as e:
                         print(f"Error accessing attachment {status_link}: {e}")
                     except Exception as e:
@@ -106,7 +115,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
         print(f"Ingredient containing '{ingredient_name}' not found in the data file.")
 
 # Example usage
-ingredient_name = "Kluyveromyces Extract"
+ingredient_name = "Hydrolyzed Kluyveromyces Extract"
 data_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/DATASET.txt"
 noael_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/NOAELVALUES.txt"
 
