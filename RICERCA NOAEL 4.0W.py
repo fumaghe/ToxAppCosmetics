@@ -106,7 +106,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
         print(f"Ingredient containing '{ingredient_name}' not found in the data file.")
 
 # Example usage
-ingredient_name = "1,2-Hexanediol"
+ingredient_name = "1,10-Decanediol"
 data_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/DATASET.txt"
 noael_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/NOAELVALUES.txt"
 
