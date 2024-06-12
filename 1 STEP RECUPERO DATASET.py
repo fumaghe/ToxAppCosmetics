@@ -19,7 +19,7 @@ if more_records:
         page += 1
 
 # Path per il file di output
-output_htmlcompleto = r"C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Desktop\Project Work\JSON DATASET.txt"
+output_htmlcompleto = r"C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\Project\WorkDATASET.txt"
 
 # Salva i risultati in un file di testo
 with open(output_htmlcompleto, 'w', encoding='utf-8') as file:

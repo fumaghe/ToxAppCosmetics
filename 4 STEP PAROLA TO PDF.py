@@ -45,6 +45,6 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path):
 
 # Example usage
 ingredient_name = "Octyldodecyl Meadowfoamate"  # User input for ingredient
-data_file_path = "C:\\Users\\AndreaFumagalli\\OneDrive - ITS Angelo Rizzoli\\Desktop\\Project Work\\JSON DATASET.txt"  # Replace with your actual file path
+data_file_path = "C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt"  # Replace with your actual file path
 
 find_ingredient_id_and_extract_link(ingredient_name, data_file_path)

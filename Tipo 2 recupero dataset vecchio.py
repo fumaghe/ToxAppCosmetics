@@ -46,7 +46,7 @@ extracted_data_str = "Ingredient Name as Used\tINCI Name\tIndirizzo:\n" + "\n".j
 )
 
 # Path to save the complete HTML and extracted data
-output_htmlcompleto = r"C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Desktop\DatasetCompleto.txt"
+output_htmlcompleto = r"C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt"
 
 # Salva l'HTML completo e i dati estratti nel file
 with open(output_htmlcompleto, 'w', encoding='utf-8') as file:
