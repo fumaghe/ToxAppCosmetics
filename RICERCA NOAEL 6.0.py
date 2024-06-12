@@ -105,7 +105,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
                             print(f"Ingredient name: {ingredient_name}")
                             print(f"Most common NOAEL: {most_common_noael} mg/kg")
                             for value in other_noael_values:
-                                print(f"Other NOAEL value: {value} mg/kg")
+                                print(f"Other NOAEL value: {value}")
 
                             check_and_append_noael(ingredient_id, most_common_noael, list(other_noael_values), noael_file_path)
                         else:
@@ -119,7 +119,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
         print(f"Ingredient containing '{ingredient_name}' not found in the data file.")
 
 # Example usage
-ingredient_name = "Kluyveromyces Extract"
+ingredient_name = "Isoceteth-15"
 data_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/DATASET.txt"
 noael_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/NOAELVALUES.txt"
 
