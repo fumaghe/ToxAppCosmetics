@@ -86,6 +86,6 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path):
 
 # Example usage
 ingredient_name = "Kluyveromyces Extract"
-data_file_path = "C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt"
+data_file_path = "C:\\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt"
 
 find_ingredient_id_and_extract_link(ingredient_name, data_file_path)
