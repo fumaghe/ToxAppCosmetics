@@ -5,39 +5,57 @@ from collections import Counter
 import PyPDF2
 import io
 
-def extract_first_status_link(url):
+def extract_status_links(url):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(response.content, 'html.parser')
+        tbody = soup.find('tbody')
+        
+        if not tbody:
+            print(f"No tbody found in {url}")
+            print("Here is the response content for debugging:")
+            print(response.content)
+            return None
 
-        status_link = soup.find('table').find_all('tr')[1].find('a')['href']
-        full_status_link = "https://cir-reports.cir-safety.org/" + status_link.replace("../", "")
-       
-        return full_status_link
+        status_links = []
+        for row in tbody.find_all('tr')[1:]:
+            columns = row.find_all('td')
+            if len(columns) > 1:
+                link = columns[1].find('a')
+                if link:
+                    href = link.get('href')
+                    if href and not href.startswith("javascript"):
+                        status_links.append(href)
+        
+        return status_links
 
-    except requests.RequestException as e:
-        print(f"Error accessing {url}: {e}")
-    except (IndexError, TypeError) as e:
-        print(f"Error parsing the page: {e}")
+    except Exception as e:
+        print(f"Error extracting status links from {url}: {e}")
+        return None
 
 def extract_text_from_pdf(pdf_content):
-    reader = PyPDF2.PdfReader(io.BytesIO(pdf_content))
-    text = ""
-    for page_num in range(len(reader.pages)):
-        page = reader.pages[page_num]
-        text += page.extract_text() or ""
-    return text
+    try:
+        pdf_reader = PyPDF2.PdfFileReader(io.BytesIO(pdf_content))
+        text = ""
+        for page_num in range(pdf_reader.numPages):
+            page = pdf_reader.getPage(page_num)
+            text += page.extract_text()
+        return text
+    except Exception as e:
+        print(f"Error reading PDF content: {e}")
+        return ""
 
 def find_values(text, keyword):
     pattern = fr'{keyword}\s*[:/]?'
+
     matches = re.finditer(pattern, text, re.IGNORECASE)
     values = []
     for match in matches:
         start_index = match.end()
-        words = text[start_index:start_index+100].split()[:20]  # Extracting next 20 words
+        words = text[start_index:start_index+100].split()[:20]
         for word in words:
-            if re.match(r'\d+(\.\d+)?', word):  # Checking if the word is a number
+            if re.match(r'\d+(\.\d+)?', word):
                 values.append(word)
                 break
     return values
@@ -81,41 +99,46 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_f
                 print(f"{value_type} value: {value} mg/kg (from file)")
             else:
                 url = f"https://cir-reports.cir-safety.org/cir-ingredient-status-report/?id={ingredient_id}"
-                status_link = extract_first_status_link(url)
-                if status_link:
-                    try:
-                        response = requests.get(status_link)
-                        response.raise_for_status()
-                        
-                        pdf_text = extract_text_from_pdf(response.content)
-                        noael_values = find_values(pdf_text, 'NOAEL')
-                        most_common_noael, most_common_count = find_most_common_value(noael_values)
-                        
-                        if noael_values:
-                            for value in most_common_noael:
-                                print(f"Ingredient name: {ingredient_name}")
-                                print(f"NOAEL value: {value} mg/kg")
-                                check_and_append_value(ingredient_id, 'NOAEL', value, noael_file_path)
-                        else:
-                            ld50s_values = find_values(pdf_text, 'LD50s')
-                            most_common_ld50s, most_common_count = find_most_common_value(ld50s_values)
-                            if ld50s_values:
-                                for value in most_common_ld50s:
+                status_links = extract_status_links(url)
+                if status_links:
+                    for status_link in status_links:
+                        try:
+                            response = requests.get(status_link)
+                            response.raise_for_status()
+                            pdf_text = extract_text_from_pdf(response.content)
+                            noael_values = find_values(pdf_text, 'NOAEL')
+                            most_common_noael, most_common_count = find_most_common_value(noael_values)
+
+                            if noael_values:
+                                for value in most_common_noael:
                                     print(f"Ingredient name: {ingredient_name}")
-                                    print(f"LD50s value: {value} mg/kg")
-                                    check_and_append_value(ingredient_id, 'LD50s', value, noael_file_path)
+                                    print(f"NOAEL value: {value} mg/kg")
+                                    check_and_append_value(ingredient_id, 'NOAEL', value, noael_file_path)
                             else:
-                                print(f"Ingredient name: {ingredient_name}")
-                                print("No NOAEL or LD50s values found.")
-                    except requests.RequestException as e:
-                        print(f"Error accessing attachment {status_link}: {e}")
-                    except Exception as e:
-                        print(f"Error reading PDF {status_link}: {e}")
+                                ld50s_values = find_values(pdf_text, 'LD50')
+                                most_common_ld50s, most_common_count = find_most_common_value(ld50s_values)
+                                if ld50s_values:
+                                    for value in most_common_ld50s:
+                                        print(f"Ingredient name: {ingredient_name}")
+                                        print(f"LD50 value: {value} mg/kg")
+                                        check_and_append_value(ingredient_id, 'LD50', value, noael_file_path)
+                                else:
+                                    print(f"Ingredient name: {ingredient_name}")
+                                    print("No NOAEL or LD50 values found.")
+                            break  # Exit loop after processing a valid link
+                        except requests.RequestException as e:
+                            print(f"Error accessing attachment {status_link}: {e}")
+                        except Exception as e:
+                            print(f"Error reading PDF {status_link}: {e}")
+                else:
+                    print(f"Ingredient name: {ingredient_name}")
+                    print("No status links found.")
     else:
         print(f"Ingredient containing '{ingredient_name}' not found in the data file.")
 
 # Example usage
-ingredient_name = "Kluyveromyces Extract"
+ingredient_name = "Isooctane"
+
 data_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/DATASET.txt"
 noael_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/NOAELVALUES.txt"
 
