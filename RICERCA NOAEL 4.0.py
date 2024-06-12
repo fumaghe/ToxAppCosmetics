@@ -50,7 +50,20 @@ def find_most_common_noael(values):
     most_common_values = [value for value, freq in count.items() if freq == most_common_count]
     return most_common_values, most_common_count
 
-def find_ingredient_id_and_extract_link(ingredient_name, data_file_path):
+def check_and_append_noael(ingredient_id, noael_value, noael_file_path):
+    with open(noael_file_path, 'a', encoding='utf-8') as file:
+        file.write(f"{ingredient_id}:{noael_value}\n")
+
+def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_file_path):
+    # Load NOAEL values from the NOAEL file into a dictionary
+    noael_dict = {}
+    with open(noael_file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            if ':' in line:
+                id_value_pair = line.strip().split(':')
+                if len(id_value_pair) == 2:
+                    noael_dict[id_value_pair[0]] = id_value_pair[1]
+
     with open(data_file_path, 'r', encoding='utf-8') as file:
         ingredients = []
         for line in file:
@@ -62,33 +75,39 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path):
 
     if ingredients:
         for ingredient_name, ingredient_id in set(ingredients):
-            url = f"https://cir-reports.cir-safety.org/cir-ingredient-status-report/?id={ingredient_id}"
-            status_link = extract_first_status_link(url)
-            if status_link:
-                try:
-                    response = requests.get(status_link)
-                    response.raise_for_status()
-                    
-                    pdf_text = extract_text_from_pdf(response.content)
-                    noael_values = find_noael_values(pdf_text)
-                    most_common_noael, most_common_count = find_most_common_noael(noael_values)
-                    
-                    if noael_values:
-                        print(f"Ingredient name: {ingredient_name}")
-                        for value in most_common_noael:
-                            print(f"NOAEL value: {value} mg/kg")
-                    else:
-                        print(f"Ingredient name: {ingredient_name}")
-                        print("No NOAEL values found.")
-                except requests.RequestException as e:
-                    print(f"Error accessing attachment {status_link}: {e}")
-                except Exception as e:
-                    print(f"Error reading PDF {status_link}: {e}")
+            if ingredient_id in noael_dict:
+                print(f"Ingredient name: {ingredient_name}")
+                print(f"NOAEL value: {noael_dict[ingredient_id]} mg/kg (from file)")
+            else:
+                url = f"https://cir-reports.cir-safety.org/cir-ingredient-status-report/?id={ingredient_id}"
+                status_link = extract_first_status_link(url)
+                if status_link:
+                    try:
+                        response = requests.get(status_link)
+                        response.raise_for_status()
+                        
+                        pdf_text = extract_text_from_pdf(response.content)
+                        noael_values = find_noael_values(pdf_text)
+                        most_common_noael, most_common_count = find_most_common_noael(noael_values)
+                        
+                        if noael_values:
+                            for value in most_common_noael:
+                                print(f"Ingredient name: {ingredient_name}")
+                                print(f"NOAEL value: {value} mg/kg")
+                                check_and_append_noael(ingredient_id, value, noael_file_path)
+                        else:
+                            print(f"Ingredient name: {ingredient_name}")
+                            print("No NOAEL values found.")
+                    except requests.RequestException as e:
+                        print(f"Error accessing attachment {status_link}: {e}")
+                    except Exception as e:
+                        print(f"Error reading PDF {status_link}: {e}")
     else:
         print(f"Ingredient containing '{ingredient_name}' not found in the data file.")
 
 # Example usage
 ingredient_name = "Hydrolyzed Kluyveromyces Extract"
 data_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/DATASET.txt"
+noael_file_path = "C:/Users/AndreaFumagalli/OneDrive - ITS Angelo Rizzoli/Documenti/GitHub/ProjectWork/NOAELVALUES.txt"
 
-find_ingredient_id_and_extract_link(ingredient_name, data_file_path)
+find_ingredient_id_and_extract_link(ingredient_name, data_file_path, noael_file_path)
