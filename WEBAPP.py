@@ -149,7 +149,7 @@ def find_ingredient_id_and_extract_link(ingredient_name, data_file_path, values_
 
 # Funzione per gestire la cronologia delle ricerche
 def update_search_history(ingredient_name):
-    history_file = "search_history.txt"
+    history_file = "C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\search_history.txt"
     if os.path.exists(history_file):
         with open(history_file, 'r') as file:
             history = file.readlines()
@@ -169,7 +169,7 @@ def update_search_history(ingredient_name):
     return history
 
 def get_search_history():
-    history_file = "search_history.txt"
+    history_file = "C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\search_history.txt"
     if os.path.exists(history_file):
         with open(history_file, 'r') as file:
             history = file.readlines()
@@ -209,8 +209,8 @@ def login():
 
 def main_page():
     # Percorsi dei file
-    data_file_path = '/workspaces/codespaces-blank/DATASET.txt'
-    values_file_path = '/workspaces/codespaces-blank/VALUES.txt'
+    data_file_path = 'C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\DATASET.txt'
+    values_file_path = 'C:\Users\AndreaFumagalli\OneDrive - ITS Angelo Rizzoli\Documenti\GitHub\ProjectWork\VALUES.txt'
 
     # Carica l'elenco degli ingredienti
     ingredient_list = load_ingredient_list(data_file_path)
