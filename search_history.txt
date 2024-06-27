@@ -1,5 +1,5 @@
 1,10-Decanediol
 1,2-Hexanediol
+1,4-Butanediol
 1,2-Butanediol
-1,4-Butanediol/Succinic Acid/Adipic Acid/HDI Copolymer
-1,5-Pentanediol
+1,2,4-Trihydroxybenzene
