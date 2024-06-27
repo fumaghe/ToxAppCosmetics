@@ -6,6 +6,8 @@ Created on Tue Jun 11 17:18:59 2024
 """
 
 
+
+
 import webbrowser
 
 def find_ingredient_id(ingredient_name, data_file_path):
@@ -33,4 +35,3 @@ if ingredient_id:
   webbrowser.open(report_url)  # Opens the report in the system's default web browser
 else:
   print(f"Ingredient '{ingredient_name_to_find}' not found in the data file.")
-

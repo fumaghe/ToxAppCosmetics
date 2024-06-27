@@ -1,0 +1,5 @@
+1,10-Decanediol
+1,2-Hexanediol
+1,4-Butanediol
+1,2-Butanediol
+1,2,4-Trihydroxybenzene
