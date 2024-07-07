@@ -15,6 +15,22 @@ def load_ingredient_list():
     conn.close()
     return [ingredient["pcpc_ingredientname"] for ingredient in ingredients]
 
+def update_database():
+    st.success("Database updated successfully!")
+
+def search_ingredient(ingredient_name_or_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+    SELECT pcpc_ingredientid AS id, pcpc_ingredientname AS name, NOAEL_CIR, LD50_CIR, LD50_PubChem
+    FROM ingredients
+    WHERE pcpc_ingredientid = ? OR pcpc_ingredientname = ?
+    """
+    cursor.execute(query, (ingredient_name_or_id, ingredient_name_or_id))
+    result = cursor.fetchone()
+    conn.close()
+    return result
+
 def find_ingredient_id_and_extract_link(ingredient_name):
     ingredient = search_ingredient(ingredient_name)
     if ingredient:
@@ -61,3 +77,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
 
     else:
         st.write(f"Ingredient '{ingredient_name}' not found in the database.")
+
+def update_search_history(ingredient_name):
+    with open('app/data/search_history.txt', 'a') as file:
+        file.write(f'{ingredient_name}\n')

@@ -1,8 +1,12 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import streamlit as st
 import json
 import os
 
-def show():
+def certified_cosmetics_page():
     st.markdown("<h1>Certified Cosmetics</h1>", unsafe_allow_html=True)
     
     if os.path.exists("app/data/cosmetics.json"):
