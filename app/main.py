@@ -1,9 +1,10 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'utils')))
 
 import streamlit as st
-from app.utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
+from utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
+
 
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
@@ -15,7 +16,7 @@ col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
     st.markdown("<h3 style='text-align: center;'>Search for an ingredient</h3>", unsafe_allow_html=True)
-    ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed')
+    ingredient_name = st.selectbox("", ingredient_list)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -31,3 +32,4 @@ col1, col2, col3 = st.columns([8, 4, 8])
 with col2:
     update_search_history(ingredient_name)
     st.markdown("</div>", unsafe_allow_html=True)
+
