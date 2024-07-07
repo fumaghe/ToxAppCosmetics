@@ -33,6 +33,18 @@ def update_ingredient_in_db(ingredient_id, value_updated):
     conn.commit()
     conn.close()
 
+def remove_updated_value(ingredient_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+    UPDATE ingredients
+    SET value_updated = NULL
+    WHERE pcpc_ingredientid = ?
+    """
+    cursor.execute(query, (ingredient_id,))
+    conn.commit()
+    conn.close()
+
 def load_ingredient_list():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -53,16 +65,15 @@ def find_ingredient_id_and_extract_link(ingredient_name):
         cir_pdf = ingredient["cir_pdf"]
         pubchem_page = ingredient["pubchem_page"]
 
-        st.markdown(f"<h3 style='text-align: left; font-size: 20px;'>Ingredient name: {ingredient['name']}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: left; font-size: 25px;'>Ingredient name: {ingredient['name']}</h3>", unsafe_allow_html=True)
 
-        # Display the links in a rounded-corner box
+        # Display the links as buttons
         st.markdown(
             f"""
-            <div style='border: 2px solid #ccc; border-radius: 15px; padding: 10px;'>
-                <h4>Links</h4>
-                <p>Link sito CIR: <a href='{cir_page}' target='_blank'>clicca</a></p>
-                <p>Link pdf CIR: <a href='{cir_pdf}' target='_blank'>clicca</a></p>
-                <p>Link sito PubChem: <a href='{pubchem_page}' target='_blank'>clicca</a></p>
+            <div class='result-buttons'>
+            <a href='{cir_page}' target='_blank'><button>CIR</button></a>
+            <a href='{cir_pdf}' target='_blank'><button>PDF</button></a>
+            <a href='{pubchem_page}' target='_blank'><button>PubChem</button></a>
             </div>
             """,
             unsafe_allow_html=True
@@ -73,10 +84,10 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             st.markdown("### User Updated Values")
             st.markdown(f"- {value_updated}")
 
-        col1, col2, col3 = st.columns([4, 0.5, 4])
+        col1, col2, col3 = st.columns([4, 1, 4])
         
         with col1:
-            st.markdown("### CIR Results")
+            st.markdown("<div class='cir-results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)
             noael_cir = json.loads(ingredient['NOAEL_CIR'])
             ld50_cir = json.loads(ingredient['LD50_CIR'])
 
@@ -99,7 +110,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
                 st.write("No LD50 values found in CIR.")
 
         with col3:
-            st.markdown("### PubChem Results")
+            st.markdown("<div class='pubchem-results'><h3>PubChem Results</h3></div>", unsafe_allow_html=True)
             ld50_pubchem = json.loads(ingredient['LD50_PubChem'])
 
             if ld50_pubchem:
@@ -111,38 +122,53 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             else:
                 st.write("No LD50 values found in PubChem.")
 
-        # Form to update the value
-        with st.form(key=f"update_form_{ingredient_id}"):
-            st.markdown(f"**Update value for {ingredient['name']}**")
-            new_value = st.text_input("Enter new value", key=f"new_value_{ingredient_id}")
-            submit_button = st.form_submit_button(label="Submit")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2: 
+            # Form to update the value
+            st.markdown("<div class='update-form'>", unsafe_allow_html=True)
+            with st.form(key=f"update_form_{ingredient_id}"):
+                st.markdown(f"**Update value for {ingredient['name']}**")
+                new_value = st.text_input("Enter new value", key=f"new_value_{ingredient_id}")
+                submit_button = st.form_submit_button(label="Submit")
 
-            if submit_button and new_value:
-                update_ingredient_in_db(ingredient_id, new_value)
-                st.success(f"Value for {ingredient['name']} updated successfully.")
-                st.experimental_rerun()
+                if submit_button and new_value:
+                    update_ingredient_in_db(ingredient_id, new_value)
+                    st.success(f"Value for {ingredient['name']} updated successfully.")
+                    st.experimental_rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+
+            if value_updated:
+                if st.button("Remove Updated Value"):
+                    remove_updated_value(ingredient_id)
+                    st.success(f"Value for {ingredient['name']} removed successfully.")
+                    st.experimental_rerun()
     else:
         st.write(f"Ingredient '{ingredient_name}' not found in the database.")
         # Perform online search if the ingredient is not found in the database
         result, source = find_missing_values(ingredient_name)
         if result:
             st.markdown(f"**Found {source} Value:** {result}")
-            with st.form(key=f"update_form_{ingredient_name}"):
-                st.markdown(f"**Update value for {ingredient_name}**")
-                new_value = st.text_input("Enter new value", key=f"new_value_{ingredient_name}")
-                submit_button = st.form_submit_button(label="Submit")
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.markdown("<div class='update-form'>", unsafe_allow_html=True)
+                with st.form(key=f"update_form_{ingredient_name}"):
+                    st.markdown(f"**Update value for {ingredient_name}**")
+                    new_value = st.text_input("Enter new value", key=f"new_value_{ingredient_name}")
+                    submit_button = st.form_submit_button(label="Submit")
 
-                if submit_button and new_value:
-                    conn = get_db_connection()
-                    cursor = conn.cursor()
-                    cursor.execute("""
-                    INSERT INTO ingredients (pcpc_ingredientid, pcpc_ingredientname, value_updated)
-                    VALUES (?, ?, ?)
-                    """, (ingredient_name, ingredient_name, new_value))
-                    conn.commit()
-                    conn.close()
-                    st.success(f"Value for {ingredient_name} updated successfully.")
-                    st.experimental_rerun()
+                    if submit_button and new_value:
+                        conn = get_db_connection()
+                        cursor = conn.cursor()
+                        cursor.execute("""
+                        INSERT INTO ingredients (pcpc_ingredientid, pcpc_ingredientname, value_updated)
+                        VALUES (?, ?, ?)
+                        """, (ingredient_name, ingredient_name, new_value))
+                        conn.commit()
+                        conn.close()
+                        st.success(f"Value for {ingredient_name} updated successfully.")
+                        st.experimental_rerun()
+                st.markdown("</div>", unsafe_allow_html=True)
 
 def update_database():
     # Add your database update logic here
