@@ -1,0 +1,21 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+    <h2>Dataset</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ingredient Name</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ingredient in ingredients %}
+                <tr>
+                    <td>{{ ingredient.pcpc_ingredientname }}</td>
+                    <td><a href="#">View Details</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

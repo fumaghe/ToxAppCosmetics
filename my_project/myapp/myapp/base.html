@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CosmeticToxicity</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>CosmeticToxicity</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'toxicity_calculator' %}">Toxicity Calculator</a></li>
+                <li><a href="{% url 'certified_cosmetics' %}">Certified Cosmetics</a></li>
+                <li><a href="{% url 'dataset' %}">Dataset</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
