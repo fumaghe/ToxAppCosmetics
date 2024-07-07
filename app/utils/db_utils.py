@@ -78,7 +78,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             """,
             unsafe_allow_html=True
         )
-
+        st.markdown("<hr>", unsafe_allow_html=True)
         value_updated = ingredient['value_updated']
         if value_updated:
             st.markdown("### User Updated Values")
