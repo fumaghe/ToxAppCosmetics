@@ -78,11 +78,19 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             """,
             unsafe_allow_html=True
         )
-
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
         value_updated = ingredient['value_updated']
         if value_updated:
-            st.markdown("### User Updated Values")
-            st.markdown(f"- {value_updated}")
+            st.markdown(
+                f"""
+                <div style="color: red; font-size: 20px;">
+                User Updated Values
+                - {value_updated}
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
 
         col1, col2, col3 = st.columns([4, 1, 4])
         
@@ -93,19 +101,27 @@ def find_ingredient_id_and_extract_link(ingredient_name):
 
             if noael_cir:
                 st.markdown("**NOAEL Values:**")
-                for value, context in noael_cir:
+                for idx, (value, context) in enumerate(noael_cir):
                     st.markdown(f"- {value} mg/kg")
                     with st.expander("Context"):
                         st.write(context)
+                    if st.button("Valore corretto", key=f"noael_button_{ingredient_id}_{idx}"):
+                        update_ingredient_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
             else:
                 st.write("No NOAEL values found in CIR.")
 
             if ld50_cir:
                 st.markdown("**LD50 Values:**")
-                for value, context in ld50_cir:
+                for idx, (value, context) in enumerate(ld50_cir):
                     st.markdown(f"- {value} mg/kg")
                     with st.expander("Context"):
                         st.write(context)
+                    if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{idx}"):
+                        update_ingredient_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
             else:
                 st.write("No LD50 values found in CIR.")
 
@@ -115,10 +131,14 @@ def find_ingredient_id_and_extract_link(ingredient_name):
 
             if ld50_pubchem:
                 st.markdown("**LD50 Values:**")
-                for value, context in ld50_pubchem:
+                for idx, (value, context) in enumerate(ld50_pubchem):
                     st.markdown(f"- {value} mg/kg")
                     with st.expander("Context"):
                         st.write(context)
+                    if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{idx}"):
+                        update_ingredient_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
             else:
                 st.write("No LD50 values found in PubChem.")
 

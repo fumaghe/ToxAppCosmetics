@@ -2,34 +2,53 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
+import sqlite3
 import streamlit as st
 import pandas as pd
 import re
 from app.utils.db_utils import update_database
 
+def get_db_connection():
+    conn = sqlite3.connect('app/data/ingredients.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
-csv_file_path = 'app/data/output_table.csv'
+def load_data_from_db():
+    conn = get_db_connection()
+    query = """
+    SELECT pcpc_ingredientname AS Ingredient, cir_page AS CIR_Page, cir_pdf AS CIR_PDF, pubchem_page AS PubChem_Page
+    FROM ingredients
+    """
+    data = pd.read_sql_query(query, conn)
+    conn.close()
+    return data
 
+# Load data from the database
+data = load_data_from_db()
+
+# Page layout
 col1, col2 = st.columns([5, 5])
 
 with col1:
     st.markdown("<h1>Dataset</h1>", unsafe_allow_html=True)
     
-    data = pd.read_csv(csv_file_path)
-    data = data.rename(columns={'pcpc_ingredientname': 'Ingredient', 'link': 'Website'})
-
-    st.markdown("<h2>Select an ingredient</h2>", unsafe_allow_html=True)
+    st.markdown("<h3>Select an ingredient</h3>", unsafe_allow_html=True)
     ingredient_name = st.selectbox("", data['Ingredient'].tolist(), label_visibility='collapsed')
     
     selected_ingredient = data[data['Ingredient'] == ingredient_name]
     if not selected_ingredient.empty:
-        website_link = selected_ingredient['Website'].values[0]
-        st.markdown(f"[Link to selected ingredient]({website_link})")
+        cir_page = selected_ingredient['CIR_Page'].values[0]
+        cir_pdf = selected_ingredient['CIR_PDF'].values[0]
+        pubchem_page = selected_ingredient['PubChem_Page'].values[0]
+        
+        st.markdown(f"[Link to CIR Page]({cir_page})")
+        st.markdown(f"[Link to CIR PDF]({cir_pdf})")
+        st.markdown(f"[Link to PubChem Page]({pubchem_page})")
 
 if st.button("Update Database"):
     update_database()
 st.markdown("<p>Click to update the database. This operation may take a few seconds.</p>", unsafe_allow_html=True)
-
+st.markdown("<hr>", unsafe_allow_html=True)
 alphabet = ['1'] + list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 selected_letter = st.radio('', alphabet, horizontal=True)
 
@@ -38,4 +57,28 @@ if selected_letter == '1':
 else:
     filtered_data = data[data['Ingredient'].str.startswith(selected_letter, na=False)]
 
-st.table(filtered_data[['Ingredient', 'Website']])
+# Convert URLs to clickable links with a symbol
+def make_clickable(val):
+    if pd.notna(val):
+        return f'<a href="{val}" target="_blank" class="link-symbol">&#128279;</a>'  # Unicode character for link symbol
+    return ''
+
+# Apply the function to the relevant columns
+filtered_data['CIR_Page'] = filtered_data['CIR_Page'].apply(make_clickable)
+filtered_data['CIR_PDF'] = filtered_data['CIR_PDF'].apply(make_clickable)
+filtered_data['PubChem_Page'] = filtered_data['PubChem_Page'].apply(make_clickable)
+
+# Render the table with clickable links
+st.markdown(
+    """
+    <style>
+    .link-symbol {
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
+st.markdown(filtered_data.to_html(escape=False, index=False, justify='left'), unsafe_allow_html=True)

@@ -27,6 +27,7 @@ st.markdown(
         align-items: center;
         width: 50%;
         margin: auto;
+        padding: 0 20px; /* Adds spacing to the sides */
     }
     .search-box {
         text-align: center;
@@ -50,17 +51,15 @@ st.markdown(
         justify-content: space-evenly;
         gap: 120px; /* Adds spacing between buttons */
     }
-
     .result-buttons a {
         flex: 1;
         display: flex;
         justify-content: center;
         text-decoration: none; /* Removes the underline from links */
     }
-
     .result-buttons a button {
         width: 100%;
-        padding: 10px 70px;
+        padding: 10px 80px;
         font-size: 16px;
         cursor: pointer;
         background-color: white;
@@ -69,12 +68,10 @@ st.markdown(
         border-radius: 5px;
         flex: 1;
     }
-
     .result-buttons a button:hover {
         background-color: #ff0000;
         color: white;
     }
-
     .cir-results, .pubchem-results {
         width: 100%;
         font-size: 20px;
@@ -87,6 +84,10 @@ st.markdown(
         font-size: 18px;
         margin-top: 20px;
         margin-bottom: 20px;
+    }
+    .divider {
+        border-top: 2px solid #ccc;
+        margin: 20px 0;
     }
     </style>
     """, unsafe_allow_html=True
