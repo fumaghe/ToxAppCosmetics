@@ -1,13 +1,9 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
 import streamlit as st
+from app.utils.db_utils import load_ingredient_list
 import json
 import os
-from app.utils.db_utils import load_ingredient_list
 
-def toxicity_calculator_page():
+def show():
     st.markdown("<h1 style='font-size: 32px;'>Toxicity Calculator</h1>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
@@ -54,7 +50,6 @@ def toxicity_calculator_page():
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # Delete Cosmetic Section
     st.markdown("<h3>Delete Cosmetic</h3>", unsafe_allow_html=True)
     if os.path.exists("app/data/cosmetics.json"):
         with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
@@ -70,7 +65,6 @@ def toxicity_calculator_page():
             st.success("Cosmetic deleted successfully.")
             st.experimental_rerun()
 
-    # Delete Ingredient Section
     st.markdown("<h3>Delete Ingredient from Cosmetic</h3>", unsafe_allow_html=True)
     if os.path.exists("app/data/cosmetics.json"):
         with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:

@@ -1,11 +1,7 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
 import streamlit as st
 from app.utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
 
-def main_page():
+def show():
     col1, col2, col3 = st.columns([1, 6, 1])
     with col2:
         st.image("app/static/Toxic.png", use_column_width=True)
@@ -16,7 +12,7 @@ def main_page():
     
     with col2:
         st.markdown("<h3 style='text-align: center;'>Search for an ingredient</h3>", unsafe_allow_html=True)
-        ingredient_name = st.selectbox("", ingredient_list)
+        ingredient_name = st.selectbox("Ingredient name", ingredient_list, label_visibility='hidden')
     
     st.markdown("<hr>", unsafe_allow_html=True)
 

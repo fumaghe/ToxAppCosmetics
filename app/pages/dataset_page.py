@@ -1,13 +1,8 @@
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
 import streamlit as st
 import pandas as pd
 import re
-from app.utils.db_utils import update_database
 
-def dataset_page():
+def show():
     csv_file_path = 'app/data/output_table.csv'
 
     col1, col2 = st.columns([5, 5])
@@ -19,7 +14,7 @@ def dataset_page():
         data = data.rename(columns={'pcpc_ingredientname': 'Ingredient', 'link': 'Website'})
 
         st.markdown("<h2>Select an ingredient</h2>", unsafe_allow_html=True)
-        ingredient_name = st.selectbox("", data['Ingredient'].tolist())
+        ingredient_name = st.selectbox("Ingredient name", data['Ingredient'].tolist(), label_visibility='hidden')
         
         selected_ingredient = data[data['Ingredient'] == ingredient_name]
         if not selected_ingredient.empty:
