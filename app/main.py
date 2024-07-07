@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import streamlit as st
 from app.pages.main_page import main_page
 from app.pages.toxicity_calculator_page import toxicity_calculator_page

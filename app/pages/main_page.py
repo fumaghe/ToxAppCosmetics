@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 import streamlit as st
 from app.utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
 
