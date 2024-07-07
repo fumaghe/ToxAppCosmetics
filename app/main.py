@@ -1,29 +1,33 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 import streamlit as st
-from app.pages.main_page import main_page
-from app.pages.toxicity_calculator_page import toxicity_calculator_page
-from app.pages.certified_cosmetics_page import certified_cosmetics_page
-from app.pages.dataset_page import dataset_page
+from app.utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
 
-# Set the page configuration
-st.set_page_config(layout="wide", page_title="CosmeticToxicity", page_icon="🧴")
+col1, col2, col3 = st.columns([1, 6, 1])
+with col2:
+    st.image("app/static/Toxic.png", use_column_width=True)
+    
+ingredient_list = load_ingredient_list()
 
-# Custom CSS for styling
-with open("app/static/style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+col1, col2, col3 = st.columns([1, 2, 1])
 
-# Sidebar menu
-st.sidebar.title("Menu")
-page = st.sidebar.radio("Navigation", ("Home", "Toxicity Calculator", "Certified Cosmetics", "Dataset"))
+with col2:
+    st.markdown("<h3 style='text-align: center;'>Search for an ingredient</h3>", unsafe_allow_html=True)
+    ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed')
 
-if page == "Home":
-    main_page()
-elif page == "Toxicity Calculator":
-    toxicity_calculator_page()
-elif page == "Certified Cosmetics":
-    certified_cosmetics_page()
-elif page == "Dataset":
-    dataset_page()
+st.markdown("<hr>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([0.2, 13, 0.2])
+
+with col2:
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    st.markdown("<h2>Search Result</h2>", unsafe_allow_html=True)
+    if ingredient_name:
+        find_ingredient_id_and_extract_link(ingredient_name)
+
+col1, col2, col3 = st.columns([8, 4, 8])
+with col2:
+    update_search_history(ingredient_name)
+    st.markdown("</div>", unsafe_allow_html=True)

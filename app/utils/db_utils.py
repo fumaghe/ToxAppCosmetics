@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import streamlit as st
+from app.utils.web_utils import get_pubchem_cid, extract_first_status_link
 
 def get_db_connection():
     conn = sqlite3.connect('app/data/ingredients.db')
@@ -36,6 +37,17 @@ def find_ingredient_id_and_extract_link(ingredient_name):
     if ingredient:
         ingredient_id = ingredient["id"]
         st.markdown(f"<h3 style='text-align: left; font-size: 20px;'>Ingredient name: {ingredient['name']}</h3>", unsafe_allow_html=True)
+
+        # Retrieve and display the CIR PDF link
+        cir_link = extract_first_status_link(ingredient_id)
+        if cir_link:
+            st.markdown(f"[CIR Report PDF]({cir_link})")
+
+        # Retrieve and display the PubChem link
+        cid = get_pubchem_cid(ingredient['name'])
+        if cid:
+            pubchem_link = f"https://pubchem.ncbi.nlm.nih.gov/compound/{cid}"
+            st.markdown(f"[PubChem Page]({pubchem_link})")
 
         col1, col2, col3 = st.columns([4, 0.5, 4])
         
