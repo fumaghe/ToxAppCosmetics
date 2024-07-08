@@ -63,10 +63,10 @@ def make_clickable(val):
         return f'<a href="{val}" target="_blank" class="link-symbol">&#128279;</a>'  # Unicode character for link symbol
     return ''
 
-# Apply the function to the relevant columns
-filtered_data['CIR_Page'] = filtered_data['CIR_Page'].apply(make_clickable)
-filtered_data['CIR_PDF'] = filtered_data['CIR_PDF'].apply(make_clickable)
-filtered_data['PubChem_Page'] = filtered_data['PubChem_Page'].apply(make_clickable)
+# Apply the function to the relevant columns using .loc to avoid SettingWithCopyWarning
+filtered_data.loc[:, 'CIR_Page'] = filtered_data['CIR_Page'].apply(make_clickable)
+filtered_data.loc[:, 'CIR_PDF'] = filtered_data['CIR_PDF'].apply(make_clickable)
+filtered_data.loc[:, 'PubChem_Page'] = filtered_data['PubChem_Page'].apply(make_clickable)
 
 # Render the table with clickable links
 st.markdown(

@@ -3,3 +3,11 @@ pandas
 requests
 beautifulsoup4
 PyPDF2
+pytesseract
+Pillow
+tqdm
+PyMuPDF
+
+# Esegui il seguente comando per installare tutte le dipendenze, potrebbe metterci qualche minuto
+pip install -r requirements.txt
+

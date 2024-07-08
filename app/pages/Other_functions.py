@@ -4,6 +4,7 @@ import sqlite3
 import os
 from utils.findpdf import search_ingredients
 from utils.findfromfoto import process_ingredients_from_csv
+from utils.db_utils import load_ingredient_list
 
 # Configura il layout di Streamlit
 st.set_page_config(layout="wide")
@@ -88,7 +89,7 @@ if st.button('Stop PDF Search'):
 # Sezione per FindFromFoto
 st.markdown("<h2>Find from Foto</h2>", unsafe_allow_html=True)
 
-ingredients_df = pd.read_csv('Ingredients_with_missing_values.csv')
+ingredients_df = pd.read_csv('app/data/Ingredients_with_missing_values.csv')
 ingredients_list = ingredients_df['pcpc_ingredientname'].tolist()
 selected_ingredients = st.multiselect("Select ingredients to search", ingredients_list)
 

@@ -12,7 +12,7 @@ import json
 import streamlit as st
 
 # Configurazione del logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message=s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -76,7 +76,7 @@ def get_pdf_for_ingredient(session, ingredient_id):
     return None
 
 def process_ingredients_from_csv(selected_ingredients, stop_flag):
-    ingredients_df = pd.read_csv('Ingredients_with_missing_values.csv')
+    ingredients_df = pd.read_csv('app/data/Ingredients_with_missing_values.csv')
     ingredients_df = ingredients_df[ingredients_df['pcpc_ingredientname'].isin(selected_ingredients)]
 
     conn = sqlite3.connect('app/data/ingredients.db')
@@ -101,8 +101,6 @@ def process_ingredients_from_csv(selected_ingredients, stop_flag):
     progress_bar = st.progress(0)
     total_ingredients = len(ingredients_df)
     progress_text = st.empty()
-
-    updated_ingredients = []
 
     for i, (index, row) in enumerate(ingredients_df.iterrows()):
         if stop_flag:
@@ -140,16 +138,12 @@ def process_ingredients_from_csv(selected_ingredients, stop_flag):
 
         results = find_values_and_contexts(extracted_text, terms)
 
-        noael_updated = False
-        ld50_updated = False
-
         if "NOAEL" in results and results["NOAEL"]:
             cursor.execute(
                 "UPDATE ingredients SET NOAEL_CIR=? WHERE pcpc_ingredientid=?",
                 (json.dumps(results["NOAEL"]), pcpc_ingredientid)
             )
             logging.info(f"Updated NOAEL values for ingredient: {ingredient_name}")
-            noael_updated = True
 
         if "LD50" in results and results["LD50"]:
             cursor.execute(
@@ -157,17 +151,9 @@ def process_ingredients_from_csv(selected_ingredients, stop_flag):
                 (json.dumps(results["LD50"]), pcpc_ingredientid)
             )
             logging.info(f"Updated LD50 values for ingredient: {ingredient_name}")
-            ld50_updated = True
-
-        if noael_updated or ld50_updated:
-            updated_ingredients.append(ingredient_name)
 
     conn.commit()
     conn.close()
-
-    if updated_ingredients:
-        ingredients_df = ingredients_df[~ingredients_df['pcpc_ingredientname'].isin(updated_ingredients)]
-        ingredients_df.to_csv('Ingredients_with_missing_values.csv', index=False)
 
     progress_text.text("The text has been successfully extracted and saved in the database.")
     logging.info("The text has been successfully extracted and saved in the database.")

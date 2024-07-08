@@ -21,7 +21,7 @@ def search_ingredient(ingredient_name_or_id):
     conn.close()
     return result
 
-def update_ingredient_in_db(ingredient_id, value_updated):
+def update_ingredient_value_in_db(ingredient_id, value_updated):
     conn = get_db_connection()
     cursor = conn.cursor()
     query = """
@@ -106,7 +106,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
                     with st.expander("Context"):
                         st.write(context)
                     if st.button("Valore corretto", key=f"noael_button_{ingredient_id}_{idx}"):
-                        update_ingredient_in_db(ingredient_id, value)
+                        update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
             else:
@@ -119,7 +119,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
                     with st.expander("Context"):
                         st.write(context)
                     if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{idx}"):
-                        update_ingredient_in_db(ingredient_id, value)
+                        update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
             else:
@@ -136,7 +136,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
                     with st.expander("Context"):
                         st.write(context)
                     if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{idx}"):
-                        update_ingredient_in_db(ingredient_id, value)
+                        update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
             else:
@@ -153,7 +153,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
                 submit_button = st.form_submit_button(label="Submit")
 
                 if submit_button and new_value:
-                    update_ingredient_in_db(ingredient_id, new_value)
+                    update_ingredient_value_in_db(ingredient_id, new_value)
                     st.success(f"Value for {ingredient['name']} updated successfully.")
                     st.experimental_rerun()
             st.markdown("</div>", unsafe_allow_html=True)

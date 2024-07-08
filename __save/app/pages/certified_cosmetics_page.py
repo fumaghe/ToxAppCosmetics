@@ -13,6 +13,9 @@ if os.path.exists("app/data/cosmetics.json"):
         cosmetics_data = json.load(file)
     
     if cosmetics_data:
+        # Invert the order to show the latest added cosmetics first
+        cosmetics_data.reverse()
+
         for cosmetic in cosmetics_data:
             st.markdown(
                 f"""

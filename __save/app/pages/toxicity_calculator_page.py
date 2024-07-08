@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 import streamlit as st
 import json
 import os
-from app.utils.db_utils import load_ingredient_list
+from app.utils.db_utils import load_ingredient_list, search_ingredient
 
 st.markdown("<h1>Toxicity Calculator</h1>", unsafe_allow_html=True)
 
@@ -20,7 +20,13 @@ with col1:
     selected_ingredient = st.selectbox("Select Ingredient to Add", load_ingredient_list(), key="selected_ingredient")
     
     if st.button("Add Ingredient"):
-        st.session_state.ingredients.append(selected_ingredient)
+        ingredient_data = search_ingredient(selected_ingredient)
+        if ingredient_data and ingredient_data['value_updated']:
+            display_name = f"{selected_ingredient} - {ingredient_data['value_updated']}"
+        else:
+            display_name = selected_ingredient
+        
+        st.session_state.ingredients.append(display_name)
 
     toxicity_status = st.radio("Is the cosmetic toxic?", ("Yes", "No"))
 
