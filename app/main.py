@@ -4,11 +4,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'utils')
 
 import streamlit as st
 from utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
+from utils.findvalue import search_and_update_ingredient
 
-# Adjust the layout to make the search result section take full width
+# Configura il layout di Streamlit
 st.set_page_config(layout="wide")
 
-# CSS for styling
+# CSS per la stilizzazione
 st.markdown(
     """
     <style>
@@ -93,24 +94,36 @@ st.markdown(
     """, unsafe_allow_html=True
 )
 
-# Centering the title
+# Centrare il titolo
 st.markdown('<div class="center-title">Cosmetic Toxicity</div>', unsafe_allow_html=True)
 
 ingredient_list = load_ingredient_list()
 
-# Centering the search box
+# Centrare la casella di ricerca
 st.markdown("<div class='center-box'><h3>Search for an ingredient</h3></div>", unsafe_allow_html=True)
 st.markdown("<div class='center-box'>", unsafe_allow_html=True)
-ingredient_name = st.selectbox("", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
+ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
 st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# Adjusting the search result to take full width
+
+# Mostrare il risultato della ricerca
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center;'>Search Result</h2>", unsafe_allow_html=True)
+
+# Aggiungere un pulsante per cercare i valori online
+if st.button('Search Values Online'):
+    with st.spinner('Searching values...'):
+        result = search_and_update_ingredient(ingredient_name)
+        if result:
+            st.success(f"Values for {ingredient_name} have been updated.")
+        else:
+            st.error(f"Could not find values for {ingredient_name} online.")
+            
 if ingredient_name:
     find_ingredient_id_and_extract_link(ingredient_name)
 st.markdown('</div>', unsafe_allow_html=True)
 
 update_search_history(ingredient_name)
+
