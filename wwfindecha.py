@@ -16,8 +16,6 @@ def initialize_driver():
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--remote-debugging-port=9222')  # Aggiunge il port debugging
     options.add_argument('--disable-software-rasterizer')
-    options.add_argument('--headless')  # Esegui Chrome in modalità headless
-    options.add_argument('--window-size=1920x1080')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     return driver
 
@@ -27,25 +25,62 @@ def get_toxicity_data(ingredient):
         # Make the API request to get the substance details
         api_url = f"https://chem.echa.europa.eu/api-substance/v1/substance?pageIndex=1&pageSize=100&searchText={ingredient.replace(' ', '%20')}"
         response = requests.get(api_url)
-        response.raise_for_status()
+        response.raise_for_status()  # Raise an exception for HTTP errors
         data = response.json()
         
         # Extract the rmlId from the first item in the results
         rmlId = data['items'][0]['substanceIndex']['rmlId']
         print(f"Extracted rmlId: {rmlId}")
         
-        # Make the API request to get the dossier details
-        dossier_api_url = f"https://chem.echa.europa.eu/api-dossier-list/v1/dossier?pageIndex=1&pageSize=100&rmlId={rmlId}&registrationStatuses=Active"
-        dossier_response = requests.get(dossier_api_url)
-        dossier_response.raise_for_status()
-        dossier_data = dossier_response.json()
+        # Navigate to the dossier list page
+        dossier_url = f"https://chem.echa.europa.eu/{rmlId}/dossier-list/reach/dossiers/active?searchText={ingredient.replace(' ', '%20')}"
+        print(f"Navigating to dossier list page: {dossier_url}")
+        driver.get(dossier_url)
         
-        # Extract the assetExternalId from the first item in the results
-        asset_external_id = dossier_data['items'][0]['assetExternalId']
-        print(f"Extracted assetExternalId: {asset_external_id}")
+        wait = WebDriverWait(driver, 30)
         
-        # Construct the URL for the HTML page
-        html_page_url = f"https://chem.echa.europa.eu/html-pages/{asset_external_id}/index.html"
+        # Accept cookies, if present
+        try:
+            accept_cookies_button = wait.until(
+                EC.element_to_be_clickable((By.XPATH, '//button[text()="Accept all cookies"]'))
+            )
+            accept_cookies_button.click()
+            print("Cookies accepted")
+        except Exception as e:
+            print("Cookies acceptance button not found or already accepted.")
+        
+        # Accept the legal notice, if present
+        try:
+            accept_terms_button = wait.until(
+                EC.element_to_be_clickable((By.XPATH, '//button[text()="I Accept the terms"]'))
+            )
+            accept_terms_button.click()
+            print("Terms accepted")
+            time.sleep(2)
+        except Exception as e:
+            print("Legal notice acceptance not found or already accepted.")
+        
+        print("Finding the first dossier link...")
+        # Scroll the page to ensure all elements are loaded
+        driver.execute_script("window.scrollTo(0, 500);")  # Scroll down a bit
+        time.sleep(2)  # Add a pause to allow elements to load
+
+        # Extract the page source
+        page_source = driver.page_source
+
+        # Parse the page source with BeautifulSoup
+        soup = BeautifulSoup(page_source, 'html.parser')
+
+        # Find the first dossier link
+        first_dossier_link = soup.select_one('a.das-button-icon.das-button-secondary[href^="/100.003.443/dossier-view/"]')
+        if not first_dossier_link:
+            print("First dossier link not found. Printing relevant HTML for debugging:")
+            print(soup.prettify())
+            return
+
+        href_value = first_dossier_link['href']
+        dossier_id = href_value.split('/')[-1]
+        html_page_url = f"https://chem.echa.europa.eu/html-pages/{dossier_id}/index.html"
         print(f"HTML page URL: {html_page_url}")
 
         # Navigate to the HTML page
@@ -66,7 +101,7 @@ def get_toxicity_data(ingredient):
             return
 
         href_value = acute_toxicity_link['href']
-        document_url = f"https://chem.echa.europa.eu/html-pages/{asset_external_id}/documents/{href_value}.html"
+        document_url = f"https://chem.echa.europa.eu/html-pages/{dossier_id}/documents/{href_value}.html"
         print(f"Document URL: {document_url}")
 
         # Navigate to the document page
