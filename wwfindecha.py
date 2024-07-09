@@ -1,3 +1,4 @@
+import sqlite3
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -6,9 +7,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import re
-import time
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
@@ -20,6 +21,8 @@ def initialize_driver():
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--headless')
     options.add_argument('--window-size=1920x1080')
+    options.add_argument('--log-level=3')  # Silenziare il logging
+    options.add_argument('--disable-logging')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     return driver
 
@@ -67,7 +70,7 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
         
         if not data['items']:
             print(f"No data found for ingredient: {ingredient}")
-            return None
+            return None, None
         
         # Extract the rmlId from the first item in the results
         rmlId = data['items'][0]['substanceIndex']['rmlId']
@@ -81,7 +84,7 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
         
         if not dossier_data['items']:
             print(f"No dossier data found for rmlId: {rmlId}")
-            return None
+            return None, None
         
         # Extract the assetExternalId from the first item in the results
         asset_external_id = dossier_data['items'][0]['assetExternalId']
@@ -96,7 +99,7 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
         driver.get(html_page_url)
 
         # Attendere che la pagina sia completamente caricata
-        WebDriverWait(driver, 30).until(lambda driver: driver.current_url == html_page_url)
+        WebDriverWait(driver, 10).until(lambda driver: driver.current_url == html_page_url)
 
         # Estrai il link specifico per i dati di tossicità acuta
         page_source = driver.page_source
@@ -113,7 +116,7 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
         if not href_value:
             print("Link not found in both sections. Printing relevant HTML for debugging:")
             print(soup.prettify())
-            return None
+            return None, None
 
         document_url = f"https://chem.echa.europa.eu/html-pages/{asset_external_id}/documents/{href_value}.html"
         print(f"Document URL: {document_url}")
@@ -128,39 +131,68 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
         text_content = soup.get_text(separator=' ', strip=True)
         echa_value = extract_values(text_content)
         print("ECHA Value:", echa_value)
-        return echa_value
+        return echa_value, document_url
         
     except Exception as e:
         print(f"An error occurred: {e}")
-        return None
+        return None, None
 
-def get_toxicity_data(ingredient):
-    words = re.split(r'[\s/]+', ingredient)
-    num_threads = max(1, len(words) // 2)
-    driver = initialize_driver()
-    results = []
-    try:
-        with ThreadPoolExecutor(max_workers=num_threads) as executor:
-            futures = {executor.submit(get_toxicity_data_for_ingredient, driver, ' '.join(words[:i])): i for i in range(len(words), 0, -1)}
-            for future in as_completed(futures):
-                result = future.result()
-                if result:
-                    results.append(result)
-                    # Cancel remaining futures
-                    for f in futures:
-                        f.cancel()
-                    break
-    finally:
-        print("Closing the browser...")
-        driver.quit()
-
+def get_toxicity_data(ingredient, driver):
+    results, document_url = get_toxicity_data_for_ingredient(driver, ingredient)
+    
     if not results:
-        print(f"No valid data found for ingredient: {ingredient}")
-        return None
-    return results
+        words = re.split(r'[\s/]+', ingredient)
+        num_threads = max(1, len(words) // 2)
+        try:
+            with ThreadPoolExecutor(max_workers=num_threads) as executor:
+                futures = {executor.submit(get_toxicity_data_for_ingredient, driver, ' '.join(words[:i])): i for i in range(len(words), 0, -1)}
+                for future in as_completed(futures):
+                    result, url = future.result()
+                    if result:
+                        results = result
+                        document_url = url
+                        # Cancel remaining futures
+                        for f in futures:
+                            f.cancel()
+                        break
+        finally:
+            pass
+    
+    return results, document_url
 
-# Esempio di utilizzo
+def update_database(start_index, num_ingredients):
+    conn = sqlite3.connect('ingredients.db')
+    cursor = conn.cursor()
+
+    # Selezionare gli ingredienti dal database
+    cursor.execute("SELECT pcpc_ingredientid, pcpc_ingredientname FROM ingredients LIMIT ? OFFSET ?", (num_ingredients, start_index))
+    ingredients = cursor.fetchall()
+
+    driver = initialize_driver()
+    total_found = 0
+
+    for ingredient_id, ingredient_name in ingredients:
+        echa_value, echa_dossier = get_toxicity_data(ingredient_name, driver)
+        if not echa_value:
+            echa_value = "[]"
+        else:
+            total_found += 1
+        
+        cursor.execute("UPDATE ingredients SET echa_value = ?, echa_dossier = ? WHERE pcpc_ingredientid = ?", (str(echa_value), echa_dossier, ingredient_id))
+        conn.commit()
+        print(f"Updated ingredient {ingredient_id} with echa_value and echa_dossier")
+
+    driver.quit()
+    conn.close()
+    print(f"Total ingredients found: {total_found} out of {num_ingredients}")
+
+# Parametri di esempio
+start_index = 0
+num_ingredients = 5
+
+
+# Eseguire l'aggiornamento del database
 start_time = time.time()
-result = get_toxicity_data("Acrylates/Methoxy PEG-23 Methacrylate/Perfluorooctyl Ethyl Acrylate Copolymer")
+update_database(start_index, num_ingredients)
 end_time = time.time()
 print(f"Time taken: {end_time - start_time} seconds")
