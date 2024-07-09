@@ -1,10 +1,9 @@
 import sys
 import os
 import base64
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'utils')))
-
+import json
 import streamlit as st
-from utils.db_utils import load_ingredient_list, find_ingredient_id_and_extract_link, update_search_history
+from utils.db_utils import load_ingredient_list, update_search_history, search_ingredient, get_db_connection, update_ingredient_value_in_db
 from utils.findvalue import search_and_update_ingredient
 
 # Imposta il layout di Streamlit
@@ -85,7 +84,7 @@ st.markdown(
         background-color: #ff0000;
         color: white;
     }}
-    .cir-results, .pubchem-results {{
+    .results {{
         width: 100%;
         font-size: 20px;
         margin-top: 10px;
@@ -110,8 +109,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-
 ingredient_list = load_ingredient_list()
 
 # Centrare la casella di ricerca
@@ -122,6 +119,8 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
+# Aggiungere il selezionatore per la fonte dei dati
+source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
 
 # Mostrare il risultato della ricerca
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
@@ -135,10 +134,114 @@ if st.button('Search Values Online'):
             st.success(f"Values for {ingredient_name} have been updated.")
         else:
             st.error(f"Could not find values for {ingredient_name} online.")
-            
+
 if ingredient_name:
-    find_ingredient_id_and_extract_link(ingredient_name)
-st.markdown('</div>', unsafe_allow_html=True)
+    ingredient = search_ingredient(ingredient_name)
+    if ingredient:
+        ingredient_id = ingredient["id"]
+        cir_page = ingredient["cir_page"]
+        cir_pdf = ingredient["cir_pdf"]
+        pubchem_page = ingredient["pubchem_page"]
+        
+        # Display the links as buttons
+        st.markdown(
+            f"""
+            <div class='result-buttons'>
+            <a href='{cir_page}' target='_blank'><button>CIR</button></a>
+            <a href='{cir_pdf}' target='_blank'><button>PDF</button></a>
+            <a href='{pubchem_page}' target='_blank'><button>PubChem</button></a>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        st.markdown("<hr>", unsafe_allow_html=True)
 
-update_search_history(ingredient_name)
+        value_updated = ingredient['value_updated']
+        if value_updated:
+            st.markdown(
+                f"""
+                <div style="color: red; font-size: 20px;">
+                User Updated Values
+                - {value_updated}
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
 
+        # Mostrare i valori in base alla fonte selezionata
+        if source == "CIR":
+            st.markdown("<div class='results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)
+            noael_cir = json.loads(ingredient['NOAEL_CIR'])
+            ld50_cir = json.loads(ingredient['LD50_CIR'])
+
+            if noael_cir:
+                st.markdown("**NOAEL Values:**")
+                for idx, (value, context) in enumerate(noael_cir):
+                    st.markdown(f"- {value} mg/kg")
+                    with st.expander("Context"):
+                        st.write(f"{context}")
+                    if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{idx}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
+            else:
+                st.write("No NOAEL values found in CIR.")
+
+            if ld50_cir:
+                st.markdown("**LD50 Values:**")
+                for idx, (value, context) in enumerate(ld50_cir):
+                    st.markdown(f"- {value} mg/kg")
+                    with st.expander("Context"):
+                        st.write(f"{context}")
+                    if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{idx}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
+            else:
+                st.write("No LD50 values found in CIR.")
+
+        elif source == "PubChem":
+            st.markdown("<div class='results'><h3>PubChem Results</h3></div>", unsafe_allow_html=True)
+            ld50_pubchem = json.loads(ingredient['LD50_PubChem'])
+
+            if ld50_pubchem:
+                st.markdown("**LD50 Values:**")
+                for idx, (value, context) in enumerate(ld50_pubchem):
+                    st.markdown(f"- {value} mg/kg")
+                    with st.expander("Context"):
+                        st.write(f"{context}")
+                    if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{idx}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
+            else:
+                st.write("No LD50 values found in PubChem.")
+
+        elif source == "ECHA":
+            st.markdown("<div class='results'><h3>ECHA Results</h3></div>", unsafe_allow_html=True)
+            echa_value = json.loads(ingredient['echa_value'])
+
+            if echa_value != "[]":
+                st.markdown("**ECHA Values:**")
+                for idx, (value, context) in enumerate(echa_value):
+                    st.markdown(f"- {value}")
+                    with st.expander("Context"):
+                        st.write(f"{context}")
+                    if st.button("Valore corretto", key=f"echa_value_button_{ingredient_id}_{idx}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
+            else:
+                st.write("No ECHA values found.")
+    else:
+        st.write("No ingredient selected.")
+
+    st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+    st.markdown('<div class="update-form"><h3>Update Ingredient Value</h3></div>', unsafe_allow_html=True)
+    new_value = st.text_input("Enter new value:")
+    if st.button("Update Value"):
+        update_ingredient_value_in_db(ingredient_id, new_value)
+        st.success(f"Value for {ingredient_name} updated successfully to {new_value}.")
+        st.experimental_rerun()
+else:
+    st.write("No ingredient selected.")
