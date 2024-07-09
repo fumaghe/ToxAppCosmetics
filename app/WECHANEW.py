@@ -5,8 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import time
+import re
 import requests
+from concurrent.futures import ThreadPoolExecutor
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
@@ -33,6 +34,27 @@ def extract_href(soup, section_name):
         return None
     
     return link['href']
+
+def extract_values(text):
+    pattern = re.compile(r'(NOAEL|LD50)[^0-9]*(\d+[\.,]?\d*)\s*(mg/kg bw|mg/kg|g/kg|mg/L|g/L)')
+    matches = pattern.finditer(text)
+    echa_value = []
+    for match in matches:
+        value, unit = match.group(2), match.group(3)
+        echa_number = f"{value} {unit}"
+        # Trova il contesto
+        words = text.split()
+        value_index = words.index(value)
+        context_before = ' '.join(words[max(0, value_index-10):value_index])
+        context_after = ' '.join(words[value_index+1:min(len(words), value_index+11)])
+        echa_context = f"{context_before} {value} {context_after}"
+        echa_value.append([echa_number, echa_context])
+    return echa_value
+
+def fetch_document_content(document_url):
+    document_response = requests.get(document_url)
+    document_response.raise_for_status()
+    return document_response.content
 
 def get_toxicity_data(ingredient):
     driver = initialize_driver()
@@ -88,17 +110,17 @@ def get_toxicity_data(ingredient):
         document_url = f"https://chem.echa.europa.eu/html-pages/{asset_external_id}/documents/{href_value}.html"
         print(f"Document URL: {document_url}")
 
-        # Navigate to the document page
-        print(f"Navigating to document page: {document_url}")
-        driver.get(document_url)
-
-        # Attendere che la pagina sia completamente caricata
-        WebDriverWait(driver, 30).until(lambda driver: driver.current_url == document_url)
+        # Fetch the document content
+        document_content = fetch_document_content(document_url)
         
-        # Ottenere l'URL completo della pagina corrente
-        full_url = driver.current_url
-        print(f"Full document URL: {full_url}")
+        # Parse the document content
+        soup = BeautifulSoup(document_content, 'html.parser')
 
+        # Cerca il testo all'interno della pagina per trovare NOAEL o LD50
+        text_content = soup.get_text(separator=' ', strip=True)
+        echa_value = extract_values(text_content)
+        print("ECHA Value:", echa_value)
+        
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
