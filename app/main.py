@@ -237,11 +237,43 @@ if ingredient_name:
         st.write("No ingredient selected.")
 
     st.markdown("<hr class='divider'>", unsafe_allow_html=True)
-    st.markdown('<div class="update-form"><h3>Update Ingredient Value</h3></div>', unsafe_allow_html=True)
-    new_value = st.text_input("Enter new value:")
-    if st.button("Update Value"):
-        update_ingredient_value_in_db(ingredient_id, new_value)
-        st.success(f"Value for {ingredient_name} updated successfully to {new_value}.")
-        st.experimental_rerun()
+
+    # Adattare la sezione dell'aggiornamento del valore
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("<div class='update-form'>", unsafe_allow_html=True)
+        with st.form(key=f"update_form_{ingredient_name}"):
+            st.markdown(f"**Update value for {ingredient_name}**")
+            new_value = st.text_input("Enter new value", key=f"new_value_{ingredient_name}")
+            submit_button = st.form_submit_button(label="Submit")
+
+            if submit_button and new_value:
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("""
+                INSERT INTO ingredients (pcpc_ingredientid, pcpc_ingredientname, value_updated)
+                VALUES (?, ?, ?)
+                """, (ingredient_name, ingredient_name, new_value))
+                conn.commit()
+                conn.close()
+                st.success(f"Value for {ingredient_name} updated successfully.")
+                st.experimental_rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Aggiungere il pulsante per rimuovere il value_updated
+    if value_updated:
+        with col2:
+            if st.button("Remove updated value"):
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("""
+                UPDATE ingredients
+                SET value_updated = NULL
+                WHERE pcpc_ingredientid = ?
+                """, (ingredient_id,))
+                conn.commit()
+                conn.close()
+                st.success(f"Updated value for {ingredient_name} has been removed.")
+                st.experimental_rerun()
 else:
     st.write("No ingredient selected.")
