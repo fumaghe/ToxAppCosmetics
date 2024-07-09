@@ -12,7 +12,18 @@ def search_ingredient(ingredient_name_or_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     query = """
-    SELECT pcpc_ingredientid AS id, pcpc_ingredientname AS name, NOAEL_CIR, LD50_CIR, LD50_PubChem, value_updated, cir_page, cir_pdf, pubchem_page
+    SELECT 
+        pcpc_ingredientid AS id, 
+        pcpc_ingredientname AS name, 
+        NOAEL_CIR, 
+        LD50_CIR, 
+        LD50_PubChem, 
+        echa_value,  -- aggiungi questo campo
+        echa_dossier, -- aggiungi questo campo
+        value_updated, 
+        cir_page, 
+        cir_pdf, 
+        pubchem_page
     FROM ingredients
     WHERE pcpc_ingredientid = ? OR pcpc_ingredientname = ?
     """
@@ -20,6 +31,7 @@ def search_ingredient(ingredient_name_or_id):
     result = cursor.fetchone()
     conn.close()
     return result
+
 
 def update_ingredient_value_in_db(ingredient_id, value_updated):
     conn = get_db_connection()

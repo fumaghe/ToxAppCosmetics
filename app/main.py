@@ -158,7 +158,6 @@ if ingredient_name:
         # Aggiungere il selezionatore per la fonte dei dati
         source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
 
-
         value_updated = ingredient['value_updated']
         if value_updated:
             st.markdown(
@@ -222,9 +221,15 @@ if ingredient_name:
 
         elif source == "ECHA":
             st.markdown("<div class='results'><h3>ECHA Results</h3></div>", unsafe_allow_html=True)
-            echa_value = json.loads(ingredient['echa_value'])
+            echa_value_raw = ingredient['echa_value']
+            echa_value = None
+            if echa_value_raw and echa_value_raw != "[]":
+                try:
+                    echa_value = json.loads(echa_value_raw)
+                except json.JSONDecodeError:
+                    st.error("Failed to decode ECHA value. Please check the data format.")
 
-            if echa_value != "[]":
+            if echa_value:
                 st.markdown("**ECHA Values:**")
                 for idx, (value, context) in enumerate(echa_value):
                     st.markdown(f"- {value}")

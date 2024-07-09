@@ -11,6 +11,7 @@ import re
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
+import json
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
@@ -162,7 +163,7 @@ def get_toxicity_data(ingredient, driver):
     return results, document_url
 
 def update_database(start_index, num_ingredients):
-    conn = sqlite3.connect('ingredients.db')
+    conn = sqlite3.connect('app\data\ingredients.db')
     cursor = conn.cursor()
 
     # Selezionare gli ingredienti dal database
@@ -184,9 +185,10 @@ def update_database(start_index, num_ingredients):
         if not echa_value:
             echa_value = "[]"
         else:
+            echa_value = json.dumps(echa_value)  # Convert the list to a JSON string
             total_found += 1
         
-        cursor.execute("UPDATE ingredients SET echa_value = ?, echa_dossier = ? WHERE pcpc_ingredientid = ?", (str(echa_value), echa_dossier, ingredient_id))
+        cursor.execute("UPDATE ingredients SET echa_value = ?, echa_dossier = ? WHERE pcpc_ingredientid = ?", (echa_value, echa_dossier, ingredient_id))
         conn.commit()
         print(f"Updated ingredient {ingredient_id} with echa_value and echa_dossier")
 
@@ -207,8 +209,8 @@ def update_database(start_index, num_ingredients):
     plt.show()
 
 # Parametri di esempio
-start_index = 10
-num_ingredients = 700
+start_index = 0
+num_ingredients = 10
 
 # Eseguire l'aggiornamento del database
 start_time = time.time()
