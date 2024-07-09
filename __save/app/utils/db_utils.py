@@ -105,7 +105,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
                     st.markdown(f"- {value} mg/kg")
                     with st.expander("Context"):
                         st.write(context)
-                    if st.button("Valore corretto", key=f"noael_button_{ingredient_id}_{idx}"):
+                    if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{idx}"):
                         update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()

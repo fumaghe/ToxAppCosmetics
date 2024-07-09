@@ -5,9 +5,23 @@ from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 import logging
 import streamlit as st
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Configurazione del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def create_session():
+    retry_strategy = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["HEAD", "GET", "OPTIONS"]
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
 
 def extract_first_status_link(session, url):
     try:
@@ -17,6 +31,7 @@ def extract_first_status_link(session, url):
         status_links = soup.find('table').find_all('a')
         if not status_links:
             return None
+
         first_link = "https://cir-reports.cir-safety.org/" + status_links[0]['href'].replace("../", "")
         try:
             response = session.get(first_link)
@@ -42,40 +57,35 @@ def get_cir_links(session, ingredient_id):
     cir_pdf = extract_first_status_link(session, cir_page)
     return cir_page, cir_pdf
 
-def get_pubchem_link(session, ingredient_name):
-    search_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{ingredient_name}/cids/JSON"
+def process_ingredient(session, ingredient):
+    ingredient_id, ingredient_name, cir_page_existing, cir_pdf_existing = ingredient
+    if cir_page_existing and cir_pdf_existing:
+        logging.info(f"Skipping {ingredient_name}, CIR links already present.")
+        return ingredient_id, None, None  # No need to update if links already exist
+
     try:
-        response = session.get(search_url)
-        response.raise_for_status()
-        data = response.json()
-        cid = data['IdentifierList']['CID'][0]
-        pubchem_page = f"https://pubchem.ncbi.nlm.nih.gov/compound/{cid}"
-        logging.info(f"Found PubChem link for {ingredient_name}: {pubchem_page}")
-        return pubchem_page
-    except requests.RequestException as e:
-        logging.error(f"Failed to fetch PubChem CID for {ingredient_name}, Error: {e}")
-        return None
-    except (KeyError, IndexError):
-        logging.warning(f"No CID found for {ingredient_name}")
-        return None
+        cir_page, cir_pdf = get_cir_links(session, ingredient_id)
+        return ingredient_id, cir_page, cir_pdf
+    except Exception as e:
+        logging.error(f"An error occurred while processing ingredient {ingredient_name}: {e}")
+        return ingredient_id, None, None
+
+def update_database(batch_updates):
+    with sqlite3.connect('app/data/ingredients.db') as conn:
+        cursor = conn.cursor()
+        cursor.executemany(
+            "UPDATE ingredients SET cir_page=?, cir_pdf=? WHERE pcpc_ingredientid=?",
+            batch_updates
+        )
+        conn.commit()
 
 def search_ingredients(start_index, end_index, stop_flag):
-    conn = sqlite3.connect('app/data/ingredients.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT pcpc_ingredientid, pcpc_ingredientname FROM ingredients")
-    ingredients = cursor.fetchall()
-    ingredients = ingredients[start_index:end_index]
+    with sqlite3.connect('app/data/ingredients.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT pcpc_ingredientid, pcpc_ingredientname, cir_page, cir_pdf FROM ingredients")
+        ingredients = cursor.fetchall()[start_index:end_index]
 
-    retry_strategy = Retry(
-        total=5,
-        backoff_factor=1,
-        status_forcelist=[429, 500, 502, 503, 504],
-        allowed_methods=["HEAD", "GET", "OPTIONS"]
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    session = requests.Session()
-    session.mount("https://", adapter)
-    session.mount("http://", adapter)
+    session = create_session()
 
     # CSS per personalizzare la barra di avanzamento
     st.markdown(
@@ -93,37 +103,30 @@ def search_ingredients(start_index, end_index, stop_flag):
     total_ingredients = len(ingredients)
     progress_text = st.empty()
 
-    for i, (ingredient_id, ingredient_name) in enumerate(ingredients):
-        if stop_flag:
-            break
-        progress_percentage = (i + 1) / total_ingredients
-        progress_bar.progress(progress_percentage)
-        progress_text.text(f"Processing {ingredient_name} ({i + 1}/{total_ingredients})")
+    batch_size = 10
+    batch_updates = []
 
-        try:
-            logging.info(f"Processing ingredient: {ingredient_name}")
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_ingredient = {executor.submit(process_ingredient, session, ingredient): ingredient for ingredient in ingredients}
+        for i, future in enumerate(as_completed(future_to_ingredient)):
+            if stop_flag:
+                break
 
-            cir_page, cir_pdf = get_cir_links(session, ingredient_id)
-            logging.info(f"Found CIR links for {ingredient_name}: CIR Page - {cir_page}, CIR PDF - {cir_pdf}")
+            ingredient_id, cir_page, cir_pdf = future.result()
 
-            pubchem_page = get_pubchem_link(session, ingredient_name)
-            logging.info(f"Found PubChem link for {ingredient_name}: {pubchem_page}")
+            if cir_page or cir_pdf:
+                batch_updates.append((cir_page, cir_pdf, ingredient_id))
 
-            logging.info(f"Updating ingredient: {ingredient_name} with CIR Page - {cir_page}, CIR PDF - {cir_pdf}, PubChem Page - {pubchem_page}")
+            if len(batch_updates) >= batch_size:
+                update_database(batch_updates)
+                batch_updates = []
 
-            cursor.execute(
-                "UPDATE ingredients SET cir_page=?, cir_pdf=?, pubchem_page=? WHERE pcpc_ingredientid=?",
-                (cir_page, cir_pdf, pubchem_page, ingredient_id)
-            )
-            conn.commit()
+            progress_percentage = (i + 1) / total_ingredients
+            progress_bar.progress(progress_percentage)
+            progress_text.text(f"Processing {future_to_ingredient[future][1]} ({i + 1}/{total_ingredients})")
 
-            cursor.execute("SELECT cir_page, cir_pdf, pubchem_page FROM ingredients WHERE pcpc_ingredientid=?", (ingredient_id,))
-            updated_values = cursor.fetchone()
-            logging.info(f"Verification for {ingredient_name} - CIR Page: {updated_values[0]}, CIR PDF: {updated_values[1]}, PubChem Page: {updated_values[2]}")
+    if batch_updates:
+        update_database(batch_updates)
 
-        except Exception as e:
-            logging.error(f"An error occurred while processing ingredient {ingredient_name}: {e}")
-
-    conn.close()
     progress_text.text("The PDF links have been successfully updated in the database.")
     logging.info("The PDF links have been successfully updated in the database.")

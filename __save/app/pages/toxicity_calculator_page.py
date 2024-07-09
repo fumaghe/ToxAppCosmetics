@@ -52,7 +52,7 @@ with col1:
 
 with col2:
     st.markdown(f"<h3>Cosmetic: {cosmetic_name}</h3>", unsafe_allow_html=True)
-    st.markdown("### Ingredients Added:")
+    st.markdown("##### Ingredients Added:")
     for ingredient in st.session_state.ingredients:
         st.markdown(f"- {ingredient}")
     st.markdown(f"### Toxic: {toxicity_status}")
