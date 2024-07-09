@@ -21,7 +21,7 @@ def mostra_primi_due_ingredienti():
         print(f"LD50_CIR: {json.loads(row[3]) if row[3] else 'N/A'}")
         print(f"LD50_PubChem: {json.loads(row[4]) if row[4] else 'N/A'}")
         print(f"ECHA Value: {json.loads(row[5]) if row[5] else 'N/A'}")
-        print(f"ECHA Dossier: {row[6] if row[6] else 'N/A'}")
+        print(f"ECHA Dossier: {row[6]}")
         print("-" * 40)
 
 # Chiama la funzione per mostrare i dati

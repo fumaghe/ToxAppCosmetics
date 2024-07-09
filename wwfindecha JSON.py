@@ -1,4 +1,5 @@
 import sqlite3
+import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -175,8 +176,11 @@ def update_database(start_index, num_ingredients):
         else:
             total_found += 1
         
+        # Convert echa_value to JSON string
+        echa_value_json = json.dumps(echa_value)
+        
         # Aggiorna il database con il formato corretto
-        cursor.execute("UPDATE ingredients SET echa_value = ?, echa_dossier = ? WHERE pcpc_ingredientid = ?", (str(echa_value), echa_dossier, ingredient_id))
+        cursor.execute("UPDATE ingredients SET echa_value = ?, echa_dossier = ? WHERE pcpc_ingredientid = ?", (echa_value_json, echa_dossier, ingredient_id))
         conn.commit()
         print(f"Updated ingredient {ingredient_id} with echa_value and echa_dossier")
 
