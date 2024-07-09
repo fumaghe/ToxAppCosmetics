@@ -119,9 +119,6 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# Aggiungere il selezionatore per la fonte dei dati
-source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
-
 # Mostrare il risultato della ricerca
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center;'>Search Result</h2>", unsafe_allow_html=True)
@@ -155,6 +152,10 @@ if ingredient_name:
             unsafe_allow_html=True
         )
         st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # Aggiungere il selezionatore per la fonte dei dati
+        source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+
 
         value_updated = ingredient['value_updated']
         if value_updated:
@@ -236,7 +237,7 @@ if ingredient_name:
     else:
         st.write("No ingredient selected.")
 
-    st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     # Adattare la sezione dell'aggiornamento del valore
     col1, col2, col3 = st.columns([1, 2, 1])
