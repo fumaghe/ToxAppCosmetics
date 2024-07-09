@@ -61,7 +61,7 @@ st.markdown(
         margin-bottom: 10px;
         display: flex;
         justify-content: space-evenly;
-        gap: 120px; /* Adds spacing between buttons */
+        gap: 20px; /* Adds spacing between buttons */
     }}
     .result-buttons a {{
         flex: 1;
@@ -139,6 +139,7 @@ if ingredient_name:
         cir_page = ingredient["cir_page"]
         cir_pdf = ingredient["cir_pdf"]
         pubchem_page = ingredient["pubchem_page"]
+        echa_dossier = ingredient["echa_dossier"]
         
         # Display the links as buttons
         st.markdown(
@@ -147,6 +148,7 @@ if ingredient_name:
             <a href='{cir_page}' target='_blank'><button>CIR</button></a>
             <a href='{cir_pdf}' target='_blank'><button>PDF</button></a>
             <a href='{pubchem_page}' target='_blank'><button>PubChem</button></a>
+            <a href='{echa_dossier}' target='_blank'><button>ECHA</button></a>
             </div>
             """,
             unsafe_allow_html=True
