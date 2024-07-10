@@ -110,12 +110,13 @@ st.markdown(
 )
 
 ingredient_list = load_ingredient_list()
-
+st.markdown("<div class='center-box'><h3>Search for an ingredient</h3></div>", unsafe_allow_html=True)  
+col1, col2, col3 = st.columns([1, 2, 1])
 # Centrare la casella di ricerca
-st.markdown("<div class='center-box'><h3>Search for an ingredient</h3></div>", unsafe_allow_html=True)
-st.markdown("<div class='center-box'>", unsafe_allow_html=True)
-ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
-st.markdown("</div>", unsafe_allow_html=True)
+with col2:    
+    st.markdown("<div class='center-box'>", unsafe_allow_html=True)
+    ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -123,14 +124,17 @@ st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center;'>Search Result</h2>", unsafe_allow_html=True)
 
-# Aggiungere un pulsante per cercare i valori online
-if st.button('Search Values Online'):
-    with st.spinner('Searching values...'):
-        result = search_and_update_ingredient(ingredient_name)
-        if result:
-            st.success(f"Values for {ingredient_name} have been updated.")
-        else:
-            st.error(f"Could not find values for {ingredient_name} online.")
+col1, col2, col3 = st.columns([1.9, 2, 1])
+
+with col2:
+    # Aggiungere un pulsante per cercare i valori online
+    if st.button('Search Values Online'):
+        with st.spinner('Searching values...'):
+            result = search_and_update_ingredient(ingredient_name)
+            if result:
+                st.success(f"Values for {ingredient_name} have been updated.")
+            else:
+                st.error(f"Could not find values for {ingredient_name} online.")
 
 if ingredient_name:
     ingredient = search_ingredient(ingredient_name)
@@ -155,12 +159,18 @@ if ingredient_name:
         )
         st.markdown("<hr>", unsafe_allow_html=True)
         
-        # Aggiungere il selezionatore per la fonte dei dati
-        source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+        col1, col2 = st.columns(2)
+            
+        with col1:    
+            # Aggiungere il selezionatore per la fonte dei dati
+            source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
         
-        # Aggiungere il selezionatore per il tipo di esposizione
-        exposure_type = st.selectbox("Select exposure type", ["Oral", "Inhalate", "Dermal"], key="exposure_type_selectbox")
+        with col2:
+            # Aggiungere il selezionatore per il tipo di esposizione
+            exposure_type = st.selectbox("Select exposure type", ["Oral", "Inhalate", "Dermal"], key="exposure_type_selectbox")
 
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
         value_updated = ingredient['value_updated']
         if value_updated:
             st.markdown(
