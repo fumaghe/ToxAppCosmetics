@@ -12,6 +12,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 import json
+from tqdm import tqdm  # Import tqdm per la barra di avanzamento
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
@@ -174,7 +175,8 @@ def update_database(start_index, num_ingredients):
     total_found = 0
     times = []
 
-    for ingredient_id, ingredient_name in ingredients:
+    # Usa tqdm per la barra di avanzamento
+    for ingredient_id, ingredient_name in tqdm(ingredients, desc="Updating database"):
         start_time = time.time()
         echa_value, echa_dossier = get_toxicity_data(ingredient_name, driver)
         end_time = time.time()
@@ -209,8 +211,8 @@ def update_database(start_index, num_ingredients):
     plt.show()
 
 # Parametri di esempio
-start_index = 10
-num_ingredients = 10
+start_index = 0
+num_ingredients = 6056
 
 # Eseguire l'aggiornamento del database
 start_time = time.time()
