@@ -211,8 +211,8 @@ def update_database(start_index, num_ingredients):
     plt.show()
 
 # Parametri di esempio
-start_index = 0
-num_ingredients = 6056
+start_index = 5576
+num_ingredients = 200
 
 # Eseguire l'aggiornamento del database
 start_time = time.time()
