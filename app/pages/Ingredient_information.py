@@ -6,6 +6,20 @@ import streamlit as st
 import sqlite3
 from utils.db_utils import load_ingredient_list
 
+
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap');
+    
+    * {
+        font-family: 'League Spartan', sans-serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 def get_db_connection():
     conn = sqlite3.connect('app/data/ingredients.db')
     conn.row_factory = sqlite3.Row

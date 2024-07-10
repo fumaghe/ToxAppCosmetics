@@ -19,10 +19,17 @@ def get_image_base64(image_path):
 
 image_base64 = get_image_base64(image_path)
 
-# CSS per centrare l'immagine
 st.markdown(
     f"""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap');
+    
+    * {{
+        font-family: 'League Spartan', sans-serif;
+    }}
+    h1, h2, h3, h4, h5, h6 {{
+        font-family: 'League Spartan', sans-serif;
+    }}
     .center-image {{
         display: flex;
         justify-content: center;

@@ -9,6 +9,19 @@ from utils.db_utils import load_ingredient_list
 # Configura il layout di Streamlit
 st.set_page_config(layout="wide")
 
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap');
+    
+    * {
+        font-family: 'League Spartan', sans-serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # CSS per la stilizzazione
 st.markdown(
     """

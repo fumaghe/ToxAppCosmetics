@@ -7,6 +7,24 @@ import json
 import os
 from app.utils.db_utils import load_ingredient_list, search_ingredient
 
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap');
+    
+    * {
+        font-family: 'League Spartan', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'League Spartan', sans-serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+
 st.markdown("<h1>Toxicity Calculator</h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
