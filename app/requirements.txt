@@ -7,4 +7,5 @@ pytesseract
 Pillow
 tqdm
 PyMuPDF
+matplotlib
 

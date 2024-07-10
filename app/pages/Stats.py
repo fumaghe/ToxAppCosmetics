@@ -69,6 +69,10 @@ if os.path.exists("app/data/cosmetics.json"):
         if 'Company Name' not in df.columns:
             st.error("The data does not contain the 'Company Name' field.")
         else:
+            # Invert the position of Toxic and Ingredients columns
+            columns = ['Cosmetic Name', 'Company Name', 'Ingredients', 'Toxic'] + [col for col in df.columns if col not in ['Cosmetic Name', 'Company Name', 'Ingredients', 'Toxic']]
+            df = df[columns]
+
             # Filter by toxicity
             st.markdown("<h2 class='section-title'>Filter by Toxicity</h2>", unsafe_allow_html=True)
             toxicity_filter = st.radio("Select Toxicity", ('All', 'Yes', 'No'))
@@ -94,7 +98,7 @@ if os.path.exists("app/data/cosmetics.json"):
                 text_color = '#ff9999' if color == '#ff6666' else '#99ff99'
                 ax.annotate(f'{height}',
                             xy=(bar.get_x() + bar.get_width() / 2, 0),
-                            ha='center', va='bottom', fontsize=50, color=text_color, weight='bold')
+                            ha='right', va='bottom', fontsize=50, color=text_color, weight='bold')
             st.pyplot(fig)
 
             col1, col2 = st.columns(2)
