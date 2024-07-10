@@ -1,26 +1,459 @@
 [
     {
-        "Cosmetic Name": "Produmo",
+        "Cosmetic Name": "Test3",
+        "Company Name": "Bayer",
         "Ingredients": [
-            "Beheneth-25"
+            "2-Amino-4-Hydroxyethylaminoanisole",
+            "1-Hydroxyethyl 4,5-Diamino Pyrazole Sulfate",
+            "1,2-Hexanediol",
+            "1,4-Butanediol - 200 mg/kg/day"
         ],
         "Toxic": "Yes"
     },
     {
-        "Cosmetic Name": "Profumo prova",
+        "Cosmetic Name": "Fresh Dew",
+        "Company Name": "Essence Labs",
         "Ingredients": [
-            "1,2-Butanediol",
-            "1,2,4-Trihydroxybenzene",
-            "1,5-Pentanediol"
+            "Water",
+            "Hyaluronic Acid",
+            "Retinol",
+            "Aloe Vera",
+            "Niacinamide",
+            "Green Tea Extract",
+            "Shea Butter"
         ],
         "Toxic": "No"
     },
     {
-        "Cosmetic Name": "Danish",
+        "Cosmetic Name": "Beauty Elixir",
+        "Company Name": "Essence Labs",
         "Ingredients": [
-            "1,2-Butanediol - 200 mg/kg",
-            "2-Methyl-5-Hydroxyethylaminophenol",
-            "2,4-Diaminophenoxyethanol Dihydrochloride"
+            "Aloe Vera",
+            "Glycerin",
+            "Vitamin E",
+            "Chamomile Extract",
+            "Jojoba Oil",
+            "Retinol"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Pure Bliss",
+        "Company Name": "Silk Beauty",
+        "Ingredients": [
+            "Coconut Oil",
+            "Jojoba Oil",
+            "Salicylic Acid",
+            "Glycerin",
+            "Shea Butter",
+            "Water",
+            "Chamomile Extract",
+            "Aloe Vera"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Pearl Perfection",
+        "Company Name": "Pure Cosmetics",
+        "Ingredients": [
+            "Coconut Oil",
+            "Peptide Complex",
+            "Jojoba Oil",
+            "Aloe Vera",
+            "Hyaluronic Acid",
+            "Shea Butter",
+            "Fragrance",
+            "Niacinamide",
+            "Water",
+            "Glycerin"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Diamond Shine",
+        "Company Name": "Silk Beauty",
+        "Ingredients": [
+            "Aloe Vera",
+            "Water",
+            "Vitamin E",
+            "Peptide Complex",
+            "Glycerin",
+            "Salicylic Acid",
+            "Hyaluronic Acid",
+            "Chamomile Extract",
+            "Niacinamide",
+            "Retinol"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Luminous Glow",
+        "Company Name": "Glow Essentials",
+        "Ingredients": [
+            "Jojoba Oil",
+            "Vitamin E",
+            "Shea Butter",
+            "Retinol",
+            "Hyaluronic Acid"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Silk Touch",
+        "Company Name": "Youthful Creations",
+        "Ingredients": [
+            "Jojoba Oil",
+            "Hyaluronic Acid",
+            "Aloe Vera",
+            "Vitamin E",
+            "Peptide Complex",
+            "Glycerin",
+            "Salicylic Acid",
+            "Shea Butter",
+            "Retinol"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Aqua Radiance",
+        "Company Name": "Radiance Inc",
+        "Ingredients": [
+            "Green Tea Extract",
+            "Water",
+            "Salicylic Acid",
+            "Chamomile Extract",
+            "Glycerin",
+            "Coconut Oil",
+            "Vitamin E",
+            "Aloe Vera"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Golden Glow",
+        "Company Name": "Pure Cosmetics",
+        "Ingredients": [
+            "Water",
+            "Glycerin",
+            "Niacinamide",
+            "Salicylic Acid",
+            "Green Tea Extract",
+            "Retinol",
+            "Shea Butter",
+            "Chamomile Extract"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Nature's Bounty",
+        "Company Name": "Radiance Inc",
+        "Ingredients": [
+            "Hyaluronic Acid",
+            "Jojoba Oil",
+            "Vitamin E",
+            "Chamomile Extract",
+            "Aloe Vera",
+            "Glycerin",
+            "Fragrance"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Eternal Youth",
+        "Company Name": "Glow Essentials",
+        "Ingredients": [
+            "Peptide Complex",
+            "Salicylic Acid",
+            "Jojoba Oil",
+            "Chamomile Extract",
+            "Retinol",
+            "Shea Butter",
+            "Fragrance",
+            "Niacinamide",
+            "Aloe Vera",
+            "Green Tea Extract"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Youthful Essence",
+        "Company Name": "Essence Labs",
+        "Ingredients": [
+            "Fragrance",
+            "Water",
+            "Aloe Vera",
+            "Shea Butter",
+            "Vitamin E",
+            "Green Tea Extract",
+            "Niacinamide",
+            "Coconut Oil"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Silk Smooth",
+        "Company Name": "Nature's Touch",
+        "Ingredients": [
+            "Green Tea Extract",
+            "Peptide Complex",
+            "Retinol",
+            "Niacinamide",
+            "Coconut Oil",
+            "Vitamin E",
+            "Hyaluronic Acid",
+            "Chamomile Extract",
+            "Water"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Vitality Boost",
+        "Company Name": "Nature's Touch",
+        "Ingredients": [
+            "Water",
+            "Hyaluronic Acid",
+            "Retinol",
+            "Shea Butter",
+            "Salicylic Acid",
+            "Coconut Oil",
+            "Jojoba Oil",
+            "Peptide Complex",
+            "Aloe Vera"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Opal Cream",
+        "Company Name": "Youthful Creations",
+        "Ingredients": [
+            "Water",
+            "Peptide Complex",
+            "Hyaluronic Acid",
+            "Glycerin",
+            "Retinol",
+            "Shea Butter",
+            "Vitamin E"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Sunshine Cream",
+        "Company Name": "Nature's Touch",
+        "Ingredients": [
+            "Niacinamide",
+            "Vitamin E",
+            "Retinol",
+            "Aloe Vera",
+            "Chamomile Extract",
+            "Glycerin",
+            "Jojoba Oil",
+            "Fragrance"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Velvet Elixir",
+        "Company Name": "Youthful Creations",
+        "Ingredients": [
+            "Niacinamide",
+            "Glycerin",
+            "Hyaluronic Acid",
+            "Aloe Vera",
+            "Coconut Oil",
+            "Vitamin E",
+            "Retinol",
+            "Salicylic Acid"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Floral Bliss",
+        "Company Name": "Essence Labs",
+        "Ingredients": [
+            "Glycerin",
+            "Aloe Vera",
+            "Jojoba Oil",
+            "Shea Butter",
+            "Hyaluronic Acid",
+            "Vitamin E",
+            "Niacinamide",
+            "Peptide Complex"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Mystic Mist",
+        "Company Name": "Radiance Inc",
+        "Ingredients": [
+            "Coconut Oil",
+            "Hyaluronic Acid",
+            "Fragrance",
+            "Glycerin",
+            "Shea Butter"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Gentle Glow",
+        "Company Name": "Vitality Corp",
+        "Ingredients": [
+            "Shea Butter",
+            "Aloe Vera",
+            "Chamomile Extract",
+            "Retinol",
+            "Green Tea Extract",
+            "Jojoba Oil",
+            "Vitamin E"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Starlight Lotion",
+        "Company Name": "Youthful Creations",
+        "Ingredients": [
+            "Water",
+            "Retinol",
+            "Hyaluronic Acid",
+            "Niacinamide",
+            "Vitamin E",
+            "Green Tea Extract",
+            "Salicylic Acid",
+            "Jojoba Oil"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Moonlight Serum",
+        "Company Name": "Beauty Co",
+        "Ingredients": [
+            "Coconut Oil",
+            "Glycerin",
+            "Chamomile Extract",
+            "Peptide Complex",
+            "Water",
+            "Hyaluronic Acid",
+            "Shea Butter",
+            "Fragrance",
+            "Green Tea Extract",
+            "Aloe Vera"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Crystal Clear",
+        "Company Name": "Beauty Co",
+        "Ingredients": [
+            "Vitamin E",
+            "Chamomile Extract",
+            "Aloe Vera",
+            "Peptide Complex",
+            "Water",
+            "Green Tea Extract",
+            "Fragrance",
+            "Jojoba Oil"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Bloom Essence",
+        "Company Name": "Radiance Inc",
+        "Ingredients": [
+            "Green Tea Extract",
+            "Fragrance",
+            "Jojoba Oil",
+            "Peptide Complex",
+            "Hyaluronic Acid",
+            "Shea Butter",
+            "Retinol",
+            "Glycerin"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Emerald Splash",
+        "Company Name": "Vitality Corp",
+        "Ingredients": [
+            "Niacinamide",
+            "Vitamin E",
+            "Salicylic Acid",
+            "Coconut Oil",
+            "Jojoba Oil",
+            "Hyaluronic Acid",
+            "Chamomile Extract"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Ruby Radiance",
+        "Company Name": "Glow Essentials",
+        "Ingredients": [
+            "Jojoba Oil",
+            "Shea Butter",
+            "Glycerin",
+            "Green Tea Extract",
+            "Water",
+            "Niacinamide",
+            "Fragrance",
+            "Peptide Complex",
+            "Vitamin E"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Velvet Touch",
+        "Company Name": "Radiance Inc",
+        "Ingredients": [
+            "Peptide Complex",
+            "Aloe Vera",
+            "Salicylic Acid",
+            "Green Tea Extract",
+            "Vitamin E",
+            "Glycerin",
+            "Jojoba Oil",
+            "Niacinamide",
+            "Retinol",
+            "Chamomile Extract"
+        ],
+        "Toxic": "No"
+    },
+    {
+        "Cosmetic Name": "Nature's Essence",
+        "Company Name": "Glow Essentials",
+        "Ingredients": [
+            "Fragrance",
+            "Niacinamide",
+            "Peptide Complex",
+            "Coconut Oil",
+            "Chamomile Extract",
+            "Shea Butter",
+            "Jojoba Oil"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Sapphire Serum",
+        "Company Name": "Glow Essentials",
+        "Ingredients": [
+            "Hyaluronic Acid",
+            "Glycerin",
+            "Niacinamide",
+            "Jojoba Oil",
+            "Water",
+            "Salicylic Acid",
+            "Fragrance",
+            "Green Tea Extract"
+        ],
+        "Toxic": "Yes"
+    },
+    {
+        "Cosmetic Name": "Radiant Skin",
+        "Company Name": "Essence Labs",
+        "Ingredients": [
+            "Peptide Complex",
+            "Coconut Oil",
+            "Vitamin E",
+            "Niacinamide",
+            "Aloe Vera"
         ],
         "Toxic": "Yes"
     }

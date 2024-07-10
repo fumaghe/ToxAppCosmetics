@@ -4,8 +4,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 
 import streamlit as st
 import json
-import os
-from app.utils.db_utils import load_ingredient_list, search_ingredient
+from app.utils.db_utils import load_ingredient_list, search_ingredient, load_company_list, create_cosmetics_table
+
+# Crea la tabella cosmetics se non esiste
+create_cosmetics_table()
 
 st.markdown(
     """
@@ -23,8 +25,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-
 st.markdown("<h1 style='text-align: center; font-size: 50px;'>Create Cosmetic</h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
@@ -32,6 +32,14 @@ col1, col2 = st.columns(2)
 with col1:
     cosmetic_name = st.text_input("Cosmetic Name")
     
+    # Campo di testo per il nome dell'azienda con suggerimenti
+    company_name_input = st.text_input("Company Name")
+    company_name_suggestions = st.selectbox("Or select a Company Name from existing ones", [""] + load_company_list())
+    if company_name_suggestions:
+        company_name = company_name_suggestions
+    else:
+        company_name = company_name_input
+
     if "ingredients" not in st.session_state:
         st.session_state.ingredients = []
 
@@ -51,25 +59,35 @@ with col1:
     if st.button("Save Cosmetic"):
         new_cosmetic = {
             "Cosmetic Name": cosmetic_name,
+            "Company Name": company_name,
             "Ingredients": st.session_state.ingredients,
             "Toxic": toxicity_status
         }
         if os.path.exists("app/data/cosmetics.json"):
-            with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
-                cosmetics_data = json.load(file)
+            try:
+                with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
+                    cosmetics_data = json.load(file)
+            except json.JSONDecodeError:
+                cosmetics_data = []
         else:
             cosmetics_data = []
 
-        cosmetics_data.append(new_cosmetic)
+        # Controllo per nome univoco
+        existing_names = [cosmetic['Cosmetic Name'] for cosmetic in cosmetics_data]
+        if cosmetic_name in existing_names:
+            st.error("Name already exists, please try a different name.")
+        else:
+            cosmetics_data.append(new_cosmetic)
 
-        with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
-            json.dump(cosmetics_data, file, indent=4)
+            with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
+                json.dump(cosmetics_data, file, indent=4)
 
-        st.session_state.ingredients = []
-        st.experimental_rerun()
+            st.session_state.ingredients = []
+            st.experimental_rerun()
 
 with col2:
     st.markdown(f"<h3>Cosmetic: {cosmetic_name}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<h4>Company: {company_name}</h4>", unsafe_allow_html=True)
     st.markdown("##### Ingredients Added:")
     for ingredient in st.session_state.ingredients:
         st.markdown(f"- {ingredient}")
@@ -80,37 +98,44 @@ st.markdown("<hr>", unsafe_allow_html=True)
 col1, col2, col3 = st.columns([2, 1, 1])
 
 with col1:
-    # Delete Cosmetic Section
     st.markdown("<h5>Delete Cosmetic</h5>", unsafe_allow_html=True)
     if os.path.exists("app/data/cosmetics.json"):
-        with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
-            cosmetics_data = json.load(file)
+        try:
+            with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
+                cosmetics_data = json.load(file)
+        except json.JSONDecodeError:
+            cosmetics_data = []
         
-        cosmetic_names = [cosmetic["Cosmetic Name"] for cosmetic in cosmetics_data]
-        selected_cosmetic = st.selectbox("Select Cosmetic to Delete", cosmetic_names)
-        
-        if st.button("Delete Cosmetic"):
-            cosmetics_data = [cosmetic for cosmetic in cosmetics_data if cosmetic["Cosmetic Name"] != selected_cosmetic]
-            with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
-                json.dump(cosmetics_data, file, indent=4)
-            st.success("Cosmetic deleted successfully.")
-            st.experimental_rerun()
+        if cosmetics_data:
+            cosmetic_names = [cosmetic["Cosmetic Name"] for cosmetic in cosmetics_data]
+            selected_cosmetic = st.selectbox("Select Cosmetic to Delete", cosmetic_names)
+            
+            if st.button("Delete Cosmetic"):
+                cosmetics_data = [cosmetic for cosmetic in cosmetics_data if cosmetic["Cosmetic Name"] != selected_cosmetic]
+                with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
+                    json.dump(cosmetics_data, file, indent=4)
+                st.success("Cosmetic deleted successfully.")
+                st.experimental_rerun()
 
     st.markdown("<h5>Delete Ingredient from Cosmetic</h5>", unsafe_allow_html=True)
     if os.path.exists("app/data/cosmetics.json"):
-        with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
-            cosmetics_data = json.load(file)
-        
-        selected_cosmetic = st.selectbox("Select Cosmetic", cosmetic_names, key="delete_ingredient_cosmetic")
-        ingredients_to_delete = [cosmetic for cosmetic in cosmetics_data if cosmetic["Cosmetic Name"] == selected_cosmetic][0].get("Ingredients", [])
-        selected_ingredient_to_delete = st.selectbox("Select Ingredient to Delete", ingredients_to_delete)
-        
-        if st.button("Delete Ingredient"):
-            for cosmetic in cosmetics_data:
-                if cosmetic["Cosmetic Name"] == selected_cosmetic:
-                    cosmetic["Ingredients"] = [ing for ing in cosmetic["Ingredients"] if ing != selected_ingredient_to_delete]
-                    break
-            with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
-                json.dump(cosmetics_data, file, indent=4)
-            st.success("Ingredient deleted successfully.")
-            st.experimental_rerun()
+        try:
+            with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
+                cosmetics_data = json.load(file)
+        except json.JSONDecodeError:
+            cosmetics_data = []
+
+        if cosmetics_data:
+            selected_cosmetic = st.selectbox("Select Cosmetic", [cosmetic["Cosmetic Name"] for cosmetic in cosmetics_data], key="delete_ingredient_cosmetic")
+            ingredients_to_delete = [cosmetic for cosmetic in cosmetics_data if cosmetic["Cosmetic Name"] == selected_cosmetic][0].get("Ingredients", [])
+            selected_ingredient_to_delete = st.selectbox("Select Ingredient to Delete", ingredients_to_delete)
+            
+            if st.button("Delete Ingredient"):
+                for cosmetic in cosmetics_data:
+                    if cosmetic["Cosmetic Name"] == selected_cosmetic:
+                        cosmetic["Ingredients"] = [ing for ing in cosmetic["Ingredients"] if ing != selected_ingredient_to_delete]
+                        break
+                with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
+                    json.dump(cosmetics_data, file, indent=4)
+                st.success("Ingredient deleted successfully.")
+                st.experimental_rerun()
