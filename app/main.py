@@ -170,54 +170,62 @@ if ingredient_name:
                 unsafe_allow_html=True
             )
 
+        # Funzione per raggruppare i contesti con lo stesso valore
+        def group_contexts(values_with_contexts):
+            grouped = {}
+            for value, context in values_with_contexts:
+                if value in grouped:
+                    grouped[value].append(context)
+                else:
+                    grouped[value] = [context]
+            return grouped
+
         # Mostrare i valori in base alla fonte selezionata
         if source == "CIR":
             st.markdown("<div class='results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)
             noael_cir = json.loads(ingredient['NOAEL_CIR'])
             ld50_cir = json.loads(ingredient['LD50_CIR'])
 
-            if noael_cir:
-                st.markdown("**NOAEL Values:**")
-                for idx, (value, context) in enumerate(noael_cir):
-                    st.markdown(f"- {value} mg/kg")
-                    with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{idx}"):
-                        update_ingredient_value_in_db(ingredient_id, value)
-                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
-                        st.experimental_rerun()
-            else:
-                st.write("No NOAEL values found in CIR.")
+            col1, col2 = st.columns(2)
 
-            if ld50_cir:
-                st.markdown("**LD50 Values:**")
-                for idx, (value, context) in enumerate(ld50_cir):
+            with col1:
+                st.markdown("**NOAEL Values:**")
+                grouped_noael = group_contexts(noael_cir)
+                for value, contexts in grouped_noael.items():
                     st.markdown(f"- {value} mg/kg")
                     with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{idx}"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{value}"):
                         update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
-            else:
-                st.write("No LD50 values found in CIR.")
+
+            with col2:
+                st.markdown("**LD50 Values:**")
+                grouped_ld50 = group_contexts(ld50_cir)
+                for value, contexts in grouped_ld50.items():
+                    st.markdown(f"- {value} mg/kg")
+                    with st.expander("Context"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{value}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
 
         elif source == "PubChem":
             st.markdown("<div class='results'><h3>PubChem Results</h3></div>", unsafe_allow_html=True)
             ld50_pubchem = json.loads(ingredient['LD50_PubChem'])
 
-            if ld50_pubchem:
-                st.markdown("**LD50 Values:**")
-                for idx, (value, context) in enumerate(ld50_pubchem):
-                    st.markdown(f"- {value} mg/kg")
-                    with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{idx}"):
-                        update_ingredient_value_in_db(ingredient_id, value)
-                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
-                        st.experimental_rerun()
-            else:
-                st.write("No LD50 values found in PubChem.")
+            st.markdown("**LD50 Values:**")
+            grouped_ld50_pubchem = group_contexts(ld50_pubchem)
+            for value, contexts in grouped_ld50_pubchem.items():
+                st.markdown(f"- {value} mg/kg")
+                with st.expander("Context"):
+                    st.write("\n\n".join(map(str, contexts)))
+                if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{value}"):
+                    update_ingredient_value_in_db(ingredient_id, value)
+                    st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                    st.experimental_rerun()
 
         elif source == "ECHA":
             st.markdown("<div class='results'><h3>ECHA Results</h3></div>", unsafe_allow_html=True)
@@ -231,18 +239,17 @@ if ingredient_name:
 
             if echa_value:
                 st.markdown("**ECHA Values:**")
-                for idx, (value, context) in enumerate(echa_value):
+                grouped_echa = group_contexts(echa_value)
+                for value, contexts in grouped_echa.items():
                     st.markdown(f"- {value}")
                     with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Valore corretto", key=f"echa_value_button_{ingredient_id}_{idx}"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Valore corretto", key=f"echa_value_button_{ingredient_id}_{value}"):
                         update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
             else:
                 st.write("No ECHA values found.")
-    else:
-        st.write("No ingredient selected.")
 
     st.markdown("<hr>", unsafe_allow_html=True)
 

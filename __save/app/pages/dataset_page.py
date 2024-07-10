@@ -16,7 +16,7 @@ def get_db_connection():
 def load_data_from_db():
     conn = get_db_connection()
     query = """
-    SELECT pcpc_ingredientname AS Ingredient, cir_page AS CIR_Page, cir_pdf AS CIR_PDF, pubchem_page AS PubChem_Page
+    SELECT pcpc_ingredientname AS Ingredient, cir_page AS CIR_Page, cir_pdf AS CIR_PDF, pubchem_page AS PubChem_Page, echa_dossier AS ECHA_Dossier
     FROM ingredients
     """
     data = pd.read_sql_query(query, conn)
@@ -40,10 +40,12 @@ with col1:
         cir_page = selected_ingredient['CIR_Page'].values[0]
         cir_pdf = selected_ingredient['CIR_PDF'].values[0]
         pubchem_page = selected_ingredient['PubChem_Page'].values[0]
+        echa_dossier = selected_ingredient['ECHA_Dossier'].values[0]
         
         st.markdown(f"[Link to CIR Page]({cir_page})")
         st.markdown(f"[Link to CIR PDF]({cir_pdf})")
         st.markdown(f"[Link to PubChem Page]({pubchem_page})")
+        st.markdown(f"[Link to ECHA Dossier]({echa_dossier})")
 
 if st.button("Update Database"):
     update_database()
@@ -67,6 +69,7 @@ def make_clickable(val):
 filtered_data.loc[:, 'CIR_Page'] = filtered_data['CIR_Page'].apply(make_clickable)
 filtered_data.loc[:, 'CIR_PDF'] = filtered_data['CIR_PDF'].apply(make_clickable)
 filtered_data.loc[:, 'PubChem_Page'] = filtered_data['PubChem_Page'].apply(make_clickable)
+filtered_data.loc[:, 'ECHA_Dossier'] = filtered_data['ECHA_Dossier'].apply(make_clickable)
 
 # Render the table with clickable links
 st.markdown(
