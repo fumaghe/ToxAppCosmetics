@@ -157,6 +157,9 @@ if ingredient_name:
         
         # Aggiungere il selezionatore per la fonte dei dati
         source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+        
+        # Aggiungere il selezionatore per il tipo di esposizione
+        exposure_type = st.selectbox("Select exposure type", ["Oral", "Inhalate", "Dermal"], key="exposure_type_selectbox")
 
         value_updated = ingredient['value_updated']
         if value_updated:
@@ -180,12 +183,42 @@ if ingredient_name:
                     grouped[value] = [context]
             return grouped
 
+        # Funzione per filtrare i contesti in base al tipo di esposizione
+        def filter_by_exposure_type(values_with_contexts, exposure_type):
+            keywords = {
+                "Oral": ["oral"],
+                "Inhalate": ["inhalate", "inhal", "inha"],
+                "Dermal": ["dermal", "derm"]
+            }
+            filtered_values = []
+            for value, context in values_with_contexts:
+                if isinstance(context, list):
+                    context = " ".join(context)
+                for keyword in keywords[exposure_type]:
+                    if keyword in context.lower():
+                        filtered_values.append(value)
+                        break
+            return list(set(filtered_values))  # Rimuove i duplicati
+
         # Mostrare i valori in base alla fonte selezionata
         if source == "CIR":
             st.markdown("<div class='results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)
             noael_cir = json.loads(ingredient['NOAEL_CIR'])
             ld50_cir = json.loads(ingredient['LD50_CIR'])
 
+            # Filtrare e mostrare i valori in base al tipo di esposizione
+            filtered_noael = filter_by_exposure_type(noael_cir, exposure_type)
+            filtered_ld50 = filter_by_exposure_type(ld50_cir, exposure_type)
+            
+            if filtered_noael or filtered_ld50:
+                st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                if filtered_noael:
+                    st.markdown("**NOAEL Values:** " + " - ".join(map(str, filtered_noael)))
+                if filtered_ld50:
+                    st.markdown("**LD50 Values:** " + " - ".join(map(str, filtered_ld50)))
+            else:
+                st.write("No values found for the selected exposure type.")
+            
             col1, col2 = st.columns(2)
 
             with col1:
@@ -216,6 +249,15 @@ if ingredient_name:
             st.markdown("<div class='results'><h3>PubChem Results</h3></div>", unsafe_allow_html=True)
             ld50_pubchem = json.loads(ingredient['LD50_PubChem'])
 
+            # Filtrare e mostrare i valori in base al tipo di esposizione
+            filtered_ld50 = filter_by_exposure_type(ld50_pubchem, exposure_type)
+            
+            if filtered_ld50:
+                st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                st.markdown("**LD50 Values:** " + " - ".join(map(str, filtered_ld50)))
+            else:
+                st.write("No values found for the selected exposure type.")
+
             st.markdown("**LD50 Values:**")
             grouped_ld50_pubchem = group_contexts(ld50_pubchem)
             for value, contexts in grouped_ld50_pubchem.items():
@@ -238,6 +280,15 @@ if ingredient_name:
                     st.error("Failed to decode ECHA value. Please check the data format.")
 
             if echa_value:
+                # Filtrare e mostrare i valori in base al tipo di esposizione
+                filtered_echa = filter_by_exposure_type(echa_value, exposure_type)
+                
+                if filtered_echa:
+                    st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                    st.markdown("**ECHA Values:** " + " - ".join(map(str, filtered_echa)))
+                else:
+                    st.write("No values found for the selected exposure type.")
+
                 st.markdown("**ECHA Values:**")
                 grouped_echa = group_contexts(echa_value)
                 for value, contexts in grouped_echa.items():
