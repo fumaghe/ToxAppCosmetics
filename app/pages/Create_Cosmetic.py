@@ -25,7 +25,7 @@ st.markdown(
 
 
 
-st.markdown("<h1>Toxicity Calculator</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Create Cosmetic</h1>", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
@@ -73,7 +73,7 @@ with col2:
     st.markdown("##### Ingredients Added:")
     for ingredient in st.session_state.ingredients:
         st.markdown(f"- {ingredient}")
-    st.markdown(f"### Toxic: {toxicity_status}")
+    st.markdown(f"##### Toxic: {toxicity_status}")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -81,7 +81,7 @@ col1, col2, col3 = st.columns([2, 1, 1])
 
 with col1:
     # Delete Cosmetic Section
-    st.markdown("<h3>Delete Cosmetic</h3>", unsafe_allow_html=True)
+    st.markdown("<h5>Delete Cosmetic</h5>", unsafe_allow_html=True)
     if os.path.exists("app/data/cosmetics.json"):
         with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
             cosmetics_data = json.load(file)
@@ -96,7 +96,7 @@ with col1:
             st.success("Cosmetic deleted successfully.")
             st.experimental_rerun()
 
-    st.markdown("<h3>Delete Ingredient from Cosmetic</h3>", unsafe_allow_html=True)
+    st.markdown("<h5>Delete Ingredient from Cosmetic</h5>", unsafe_allow_html=True)
     if os.path.exists("app/data/cosmetics.json"):
         with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
             cosmetics_data = json.load(file)

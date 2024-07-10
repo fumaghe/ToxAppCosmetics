@@ -35,7 +35,7 @@ def get_pubchem_page(ingredient_name):
     return result['pubchem_page'] if result else None
 
 # Streamlit page
-st.markdown("<h1>Ingredient Information</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Ingredient Informations</h1>", unsafe_allow_html=True)
 
 ingredient_list = load_ingredient_list()
 

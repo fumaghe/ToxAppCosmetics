@@ -17,6 +17,9 @@ st.markdown(
     * {
         font-family: 'League Spartan', sans-serif;
     }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'League Spartan', sans-serif;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -72,7 +75,7 @@ st.markdown(
 )
 
 # Centrare il titolo
-st.markdown('<div class="center-title">Other Functions</div>', unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Other Functions</h1>", unsafe_allow_html=True)
 
 # Stato per l'interruzione
 if 'stop_process' not in st.session_state:
@@ -82,7 +85,7 @@ def stop_processing():
     st.session_state.stop_process = True
 
 # Sezione per FindPDF
-st.markdown("<h2>Find PDF</h2>", unsafe_allow_html=True)
+st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
 
 num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1)
 start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1)
@@ -99,8 +102,10 @@ if st.button('Search PDFs'):
 if st.button('Stop PDF Search'):
     stop_processing()
 
+st.markdown("<hr>", unsafe_allow_html=True)
+
 # Sezione per FindFromFoto
-st.markdown("<h2>Find from Foto</h2>", unsafe_allow_html=True)
+st.markdown("<h4>Find from Foto</h4>", unsafe_allow_html=True)
 
 ingredients_df = pd.read_csv('app/data/Ingredients_with_missing_values.csv')
 ingredients_list = ingredients_df['pcpc_ingredientname'].tolist()
@@ -118,8 +123,10 @@ if st.button('Search from Foto'):
 if st.button('Stop Foto Search'):
     stop_processing()
 
+st.markdown("<hr>", unsafe_allow_html=True)
+
 # Sezione per il download del database
-st.markdown("<h2>Download Database</h2>", unsafe_allow_html=True)
+st.markdown("<h4>Download Database</h4>", unsafe_allow_html=True)
 
 if st.button('Download Database'):
     st.session_state.stop_process = False

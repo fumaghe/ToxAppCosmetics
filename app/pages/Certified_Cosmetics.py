@@ -13,12 +13,15 @@ st.markdown(
     * {
         font-family: 'League Spartan', sans-serif;
     }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'League Spartan', sans-serif;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-st.markdown("<h1 style='text-align: center; font-size: 40px;'>Certified Cosmetics</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Certified Cosmetics</h1>", unsafe_allow_html=True)
 
 if os.path.exists("app/data/cosmetics.json"):
     with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:

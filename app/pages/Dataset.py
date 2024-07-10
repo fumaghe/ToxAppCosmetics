@@ -39,13 +39,14 @@ def load_data_from_db():
 # Load data from the database
 data = load_data_from_db()
 
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Dataset</h1>", unsafe_allow_html=True)
+
 # Page layout
 col1, col2 = st.columns([5, 5])
 
 with col1:
-    st.markdown("<h1>Dataset</h1>", unsafe_allow_html=True)
     
-    st.markdown("<h3>Select an ingredient</h3>", unsafe_allow_html=True)
+    st.markdown("<h4>Select an ingredient</h4>", unsafe_allow_html=True)
     ingredient_name = st.selectbox("", data['Ingredient'].tolist(), label_visibility='collapsed')
     
     selected_ingredient = data[data['Ingredient'] == ingredient_name]
