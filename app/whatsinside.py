@@ -8,7 +8,7 @@ def count_echa_values():
     cursor.execute("""
         SELECT echa_value, LD50_CIR, NOAEL_CIR, LD50_pubchem 
         FROM ingredients 
-        LIMIT 5877
+        LIMIT 6056
     """)
     rows = cursor.fetchall()
     
