@@ -5,8 +5,23 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 import streamlit as st
 import json
 
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap');
+    
+    * {
+        font-family: 'League Spartan', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'League Spartan', sans-serif;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-st.markdown("<h1 style='text-align: center; font-size: 40px;'>Certified Cosmetics</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Certified Cosmetics</h1>", unsafe_allow_html=True)
 
 if os.path.exists("app/data/cosmetics.json"):
     with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
@@ -38,7 +53,7 @@ if os.path.exists("app/data/cosmetics.json"):
                 st.error("This cosmetic is toxic!")
             else:
                 st.markdown(
-                    f"<div style='color: green; font-size: 20px;'><strong>Toxic: {toxicity_status} 👍</strong></div>", 
+                    f"<div style='color: green; font-size: 20px;'><strong>Toxic: {toxicity_status}</strong></div>", 
                     unsafe_allow_html=True
                 )
                 st.success("This cosmetic is not toxic!")

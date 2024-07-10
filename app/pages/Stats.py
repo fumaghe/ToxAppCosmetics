@@ -1,0 +1,1 @@
+"Statisiche aziende, fai in modo di modificare cosmetici e aggiungere l'azienda per il salvataggio, fai anche vede quali aziende sono gia presenti quando deve inserire e fai un algoritmo che calcola gli ingredienti all'interno dei cosmetici che piu spesso sono tossici"

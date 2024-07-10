@@ -19,10 +19,17 @@ def get_image_base64(image_path):
 
 image_base64 = get_image_base64(image_path)
 
-# CSS per centrare l'immagine
 st.markdown(
     f"""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap');
+    
+    * {{
+        font-family: 'League Spartan', sans-serif;
+    }}
+    h1, h2, h3, h4, h5, h6 {{
+        font-family: 'League Spartan', sans-serif;
+    }}
     .center-image {{
         display: flex;
         justify-content: center;
@@ -110,12 +117,13 @@ st.markdown(
 )
 
 ingredient_list = load_ingredient_list()
-
+st.markdown("<div class='center-box'><h3>Search for an ingredient</h3></div>", unsafe_allow_html=True)  
+col1, col2, col3 = st.columns([1, 2, 1])
 # Centrare la casella di ricerca
-st.markdown("<div class='center-box'><h3>Search for an ingredient</h3></div>", unsafe_allow_html=True)
-st.markdown("<div class='center-box'>", unsafe_allow_html=True)
-ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
-st.markdown("</div>", unsafe_allow_html=True)
+with col2:    
+    st.markdown("<div class='center-box'>", unsafe_allow_html=True)
+    ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -123,14 +131,17 @@ st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center;'>Search Result</h2>", unsafe_allow_html=True)
 
-# Aggiungere un pulsante per cercare i valori online
-if st.button('Search Values Online'):
-    with st.spinner('Searching values...'):
-        result = search_and_update_ingredient(ingredient_name)
-        if result:
-            st.success(f"Values for {ingredient_name} have been updated.")
-        else:
-            st.error(f"Could not find values for {ingredient_name} online.")
+col1, col2, col3 = st.columns([1.9, 2, 1])
+
+with col2:
+    # Aggiungere un pulsante per cercare i valori online
+    if st.button('Search Values Online'):
+        with st.spinner('Searching values...'):
+            result = search_and_update_ingredient(ingredient_name)
+            if result:
+                st.success(f"Values for {ingredient_name} have been updated.")
+            else:
+                st.error(f"Could not find values for {ingredient_name} online.")
 
 if ingredient_name:
     ingredient = search_ingredient(ingredient_name)
@@ -155,9 +166,18 @@ if ingredient_name:
         )
         st.markdown("<hr>", unsafe_allow_html=True)
         
-        # Aggiungere il selezionatore per la fonte dei dati
-        source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+        col1, col2 = st.columns(2)
+            
+        with col1:    
+            # Aggiungere il selezionatore per la fonte dei dati
+            source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+        
+        with col2:
+            # Aggiungere il selezionatore per il tipo di esposizione
+            exposure_type = st.selectbox("Select exposure type", ["Oral", "Inhalate", "Dermal"], key="exposure_type_selectbox")
 
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
         value_updated = ingredient['value_updated']
         if value_updated:
             st.markdown(
@@ -170,54 +190,101 @@ if ingredient_name:
                 unsafe_allow_html=True
             )
 
+        # Funzione per raggruppare i contesti con lo stesso valore
+        def group_contexts(values_with_contexts):
+            grouped = {}
+            for value, context in values_with_contexts:
+                if value in grouped:
+                    grouped[value].append(context)
+                else:
+                    grouped[value] = [context]
+            return grouped
+
+        # Funzione per filtrare i contesti in base al tipo di esposizione
+        def filter_by_exposure_type(values_with_contexts, exposure_type):
+            keywords = {
+                "Oral": ["oral"],
+                "Inhalate": ["inhalate", "inhal", "inha"],
+                "Dermal": ["dermal", "derm"]
+            }
+            filtered_values = []
+            for value, context in values_with_contexts:
+                if isinstance(context, list):
+                    context = " ".join(context)
+                for keyword in keywords[exposure_type]:
+                    if keyword in context.lower():
+                        filtered_values.append(value)
+                        break
+            return list(set(filtered_values))  # Rimuove i duplicati
+
         # Mostrare i valori in base alla fonte selezionata
         if source == "CIR":
             st.markdown("<div class='results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)
             noael_cir = json.loads(ingredient['NOAEL_CIR'])
             ld50_cir = json.loads(ingredient['LD50_CIR'])
 
-            if noael_cir:
-                st.markdown("**NOAEL Values:**")
-                for idx, (value, context) in enumerate(noael_cir):
-                    st.markdown(f"- {value} mg/kg")
-                    with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{idx}"):
-                        update_ingredient_value_in_db(ingredient_id, value)
-                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
-                        st.experimental_rerun()
+            # Filtrare e mostrare i valori in base al tipo di esposizione
+            filtered_noael = filter_by_exposure_type(noael_cir, exposure_type)
+            filtered_ld50 = filter_by_exposure_type(ld50_cir, exposure_type)
+            
+            if filtered_noael or filtered_ld50:
+                st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                if filtered_noael:
+                    st.markdown("**NOAEL Values:** " + " - ".join(map(str, filtered_noael)))
+                if filtered_ld50:
+                    st.markdown("**LD50 Values:** " + " - ".join(map(str, filtered_ld50)))
             else:
-                st.write("No NOAEL values found in CIR.")
+                st.write("No values found for the selected exposure type.")
+            
+            col1, col2 = st.columns(2)
 
-            if ld50_cir:
-                st.markdown("**LD50 Values:**")
-                for idx, (value, context) in enumerate(ld50_cir):
+            with col1:
+                st.markdown("**NOAEL Values:**")
+                grouped_noael = group_contexts(noael_cir)
+                for value, contexts in grouped_noael.items():
                     st.markdown(f"- {value} mg/kg")
                     with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{idx}"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{value}"):
                         update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
-            else:
-                st.write("No LD50 values found in CIR.")
+
+            with col2:
+                st.markdown("**LD50 Values:**")
+                grouped_ld50 = group_contexts(ld50_cir)
+                for value, contexts in grouped_ld50.items():
+                    st.markdown(f"- {value} mg/kg")
+                    with st.expander("Context"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{value}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
 
         elif source == "PubChem":
             st.markdown("<div class='results'><h3>PubChem Results</h3></div>", unsafe_allow_html=True)
             ld50_pubchem = json.loads(ingredient['LD50_PubChem'])
 
-            if ld50_pubchem:
-                st.markdown("**LD50 Values:**")
-                for idx, (value, context) in enumerate(ld50_pubchem):
-                    st.markdown(f"- {value} mg/kg")
-                    with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{idx}"):
-                        update_ingredient_value_in_db(ingredient_id, value)
-                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
-                        st.experimental_rerun()
+            # Filtrare e mostrare i valori in base al tipo di esposizione
+            filtered_ld50 = filter_by_exposure_type(ld50_pubchem, exposure_type)
+            
+            if filtered_ld50:
+                st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                st.markdown("**LD50 Values:** " + " - ".join(map(str, filtered_ld50)))
             else:
-                st.write("No LD50 values found in PubChem.")
+                st.write("No values found for the selected exposure type.")
+
+            st.markdown("**LD50 Values:**")
+            grouped_ld50_pubchem = group_contexts(ld50_pubchem)
+            for value, contexts in grouped_ld50_pubchem.items():
+                st.markdown(f"- {value} mg/kg")
+                with st.expander("Context"):
+                    st.write("\n\n".join(map(str, contexts)))
+                if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{value}"):
+                    update_ingredient_value_in_db(ingredient_id, value)
+                    st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                    st.experimental_rerun()
 
         elif source == "ECHA":
             st.markdown("<div class='results'><h3>ECHA Results</h3></div>", unsafe_allow_html=True)
@@ -230,19 +297,27 @@ if ingredient_name:
                     st.error("Failed to decode ECHA value. Please check the data format.")
 
             if echa_value:
+                # Filtrare e mostrare i valori in base al tipo di esposizione
+                filtered_echa = filter_by_exposure_type(echa_value, exposure_type)
+                
+                if filtered_echa:
+                    st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                    st.markdown("**ECHA Values:** " + " - ".join(map(str, filtered_echa)))
+                else:
+                    st.write("No values found for the selected exposure type.")
+
                 st.markdown("**ECHA Values:**")
-                for idx, (value, context) in enumerate(echa_value):
+                grouped_echa = group_contexts(echa_value)
+                for value, contexts in grouped_echa.items():
                     st.markdown(f"- {value}")
                     with st.expander("Context"):
-                        st.write(f"{context}")
-                    if st.button("Valore corretto", key=f"echa_value_button_{ingredient_id}_{idx}"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Valore corretto", key=f"echa_value_button_{ingredient_id}_{value}"):
                         update_ingredient_value_in_db(ingredient_id, value)
                         st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
                         st.experimental_rerun()
             else:
                 st.write("No ECHA values found.")
-    else:
-        st.write("No ingredient selected.")
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
