@@ -23,24 +23,44 @@ st.markdown(
 
 st.markdown("<h1 style='text-align: center; font-size: 50px;'>Certified Cosmetics</h1>", unsafe_allow_html=True)
 
+# Search bars for filtering
+cosmetic_name_search = st.text_input("Search by Cosmetic Name")
+company_name_search = st.text_input("Search by Company Name")
+
+if st.button("Clear Filters"):
+    cosmetic_name_search = ""
+    company_name_search = ""
+
+st.markdown("<hr>", unsafe_allow_html=True)
 if os.path.exists("app/data/cosmetics.json"):
-    with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
-        cosmetics_data = json.load(file)
-    
+    try:
+        with open("app/data/cosmetics.json", 'r', encoding='utf-8') as file:
+            cosmetics_data = json.load(file)
+    except json.JSONDecodeError:
+        st.error("Error loading cosmetics data. The file might be empty or corrupted.")
+        cosmetics_data = []
+
     if cosmetics_data:
-        # Invert the order to show the latest added cosmetics first
+        # Apply filters
+        if cosmetic_name_search:
+            cosmetics_data = [cosmetic for cosmetic in cosmetics_data if cosmetic_name_search.lower() in cosmetic['Cosmetic Name'].lower()]
+        if company_name_search:
+            cosmetics_data = [cosmetic for cosmetic in cosmetics_data if company_name_search.lower() in cosmetic['Company Name'].lower()]
+
         cosmetics_data.reverse()
 
-        for cosmetic in cosmetics_data:
+        for index, cosmetic in enumerate(cosmetics_data):
+            company_name = cosmetic.get('Company Name', 'Unknown')
             st.markdown(
                 f"""
                 <div style='margin-bottom: 10px;'>
-                    <h2 style='color: #333; font-size: 27px;'>Cosmetic Name: {cosmetic['Cosmetic Name']}</h2>
+                    <h2 font-size: 27px;'>Cosmetic Name: {cosmetic['Cosmetic Name']}</h2>
+                    <h4 font-size: 22px;'>Company Name: {company_name}</h4>
                 """, unsafe_allow_html=True
             )
 
             for ingredient in cosmetic["Ingredients"]:
-                st.markdown(f"<li style='color: #555; font-size: 18px;'>{ingredient}</li>", unsafe_allow_html=True)
+                st.markdown(f"<li font-size: 18px;'>{ingredient}</li>", unsafe_allow_html=True)
             
             st.markdown("</ul>", unsafe_allow_html=True)
 
@@ -57,7 +77,7 @@ if os.path.exists("app/data/cosmetics.json"):
                     unsafe_allow_html=True
                 )
                 st.success("This cosmetic is not toxic!")
-            if st.button(f"Delete {cosmetic['Cosmetic Name']}", key=f"delete_{cosmetic['Cosmetic Name']}"):
+            if st.button(f"Delete {cosmetic['Cosmetic Name']}", key=f"delete_{cosmetic['Cosmetic Name']}_{index}"):
                 cosmetics_data = [c for c in cosmetics_data if c["Cosmetic Name"] != cosmetic["Cosmetic Name"]]
                 with open("app/data/cosmetics.json", 'w', encoding='utf-8') as file:
                     json.dump(cosmetics_data, file, indent=4)

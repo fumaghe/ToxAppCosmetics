@@ -7,7 +7,5 @@ pytesseract
 Pillow
 tqdm
 PyMuPDF
-
-# Esegui il seguente comando per installare tutte le dipendenze, potrebbe metterci qualche minuto
-pip install -r requirements.txt
-
+matplotlib
+st-star-rating
