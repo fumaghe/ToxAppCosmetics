@@ -21,7 +21,6 @@ st.markdown(
         font-family: 'League Spartan', sans-serif;
     }
     .section-title {
-        color: #333;
         font-size: 27px;
         margin-top: 40px;
     }
