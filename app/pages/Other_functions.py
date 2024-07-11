@@ -125,6 +125,68 @@ if st.button('Stop Database Download'):
     stop_processing()
 
 
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# Sezione per creare e scaricare un file dalle colonne selezionate
+st.markdown("<h4>Create and Download File</h4>", unsafe_allow_html=True)
+
+# Elenco delle colonne disponibili
+columns = ['pcpc_ingredientid', 'pcpc_ingredientname', 'NOAEL_CIR', 'LD50_CIR', 'LD50_PubChem', 'value_updated', 'cir_page', 'cir_pdf', 'pubchem_page', 'echa_value', 'echa_dossier']
+
+# Selettore di colonne
+selected_columns = st.multiselect("Select columns to include in the file", columns)
+
+# Selettore di formato file
+file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON"])
+
+def flatten_column(data):
+    if isinstance(data, list):
+        return '; '.join([f"{item[0]}: {item[1]}" if isinstance(item, list) else str(item) for item in data])
+    return data
+
+if st.button('Create File'):
+    if selected_columns:
+        with st.spinner('Creating file...'):
+            # Connettersi al database e recuperare i dati
+            conn = sqlite3.connect('app/data/ingredients.db')
+            query = f"SELECT {', '.join(selected_columns)} FROM ingredients"
+            df = pd.read_sql_query(query, conn)
+            conn.close()
+
+            # Flatten columns that contain lists
+            for col in selected_columns:
+                if df[col].dtype == 'object':
+                    try:
+                        df[col] = df[col].apply(eval)  # Convert string representation of list back to list
+                    except:
+                        pass
+                    df[col] = df[col].apply(flatten_column)
+
+            if file_format == "CSV":
+                # Creare il file CSV
+                file_data = df.to_csv(index=False, encoding='utf-8-sig')
+                mime = 'text/csv'
+                file_name = "ingredients.csv"
+            elif file_format == "TXT":
+                # Creare il file TXT
+                file_data = df.to_csv(index=False, sep='\t', encoding='utf-8-sig')
+                mime = 'text/plain'
+                file_name = "ingredients.txt"
+            elif file_format == "JSON":
+                # Creare il file JSON
+                file_data = df.to_json(orient='records')
+                mime = 'application/json'
+                file_name = "ingredients.json"
+            
+            # Pulsante per scaricare il file
+            st.download_button(label=f"Download {file_format}", data=file_data, file_name=file_name, mime=mime)
+        st.success(f'{file_format} created successfully.')
+    else:
+        st.warning('Please select at least one column.')
+
+st.markdown("<hr>", unsafe_allow_html=True)
+
+
 # Sezione per FindPDF
 st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
 
@@ -142,5 +204,3 @@ if st.button('Search PDFs'):
 
 if st.button('Stop PDF Search'):
     stop_processing()
-
-st.markdown("<hr>", unsafe_allow_html=True)
