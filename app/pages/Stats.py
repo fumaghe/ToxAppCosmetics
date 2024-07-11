@@ -121,7 +121,6 @@ if os.path.exists("app/data/cosmetics.json"):
             ingredient_toxicity_counts = toxic_ingredients.groupby(['Ingredient Name', 'Toxic']).size().unstack().fillna(0)
 
             if 'No' in ingredient_toxicity_counts.columns and 'Yes' in ingredient_toxicity_counts.columns:
-                st.markdown("<h2 class='section-title'>Least Toxic and Most Toxic Ingredients</h2>", unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
 
                 with col1:
