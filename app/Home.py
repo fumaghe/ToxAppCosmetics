@@ -81,7 +81,7 @@ st.markdown(
         padding: 10px 80px;
         font-size: 16px;
         cursor: pointer;
-        background-color: white;
+        background-color: transparent;
         color: black;
         border: 2px solid #ff0000;
         border-radius: 5px;
@@ -107,6 +107,9 @@ st.markdown(
     .divider {{
         border-top: 2px solid #ccc;
         margin: 20px 0;
+    }}
+    .strikethrough {{
+        text-decoration: line-through;
     }}
     </style>
     <div class="center-image">
@@ -152,18 +155,44 @@ if ingredient_name:
         pubchem_page = ingredient["pubchem_page"]
         echa_dossier = ingredient["echa_dossier"]
         
+        def check_link(link):
+            return link and link != "#"
+
         # Display the links as buttons
         st.markdown(
             f"""
             <div class='result-buttons'>
-            <a href='{cir_page}' target='_blank'><button>CIR</button></a>
-            <a href='{cir_pdf}' target='_blank'><button>PDF</button></a>
-            <a href='{pubchem_page}' target='_blank'><button>PubChem</button></a>
-            <a href='{echa_dossier}' target='_blank'><button>ECHA</button></a>
+            <a href='{cir_page if check_link(cir_page) else "#"}' target='_blank' onclick="if('{cir_page}' === '#'){{event.preventDefault(); showError();}}"><button class='{"strikethrough" if not check_link(cir_page) else ""}'>CIR</button></a>
+            <a href='{cir_pdf if check_link(cir_pdf) else "#"}' target='_blank' onclick="if('{cir_pdf}' === '#'){{event.preventDefault(); showError();}}"><button class='{"strikethrough" if not check_link(cir_pdf) else ""}'>PDF</button></a>
+            <a href='{pubchem_page if check_link(pubchem_page) else "#"}' target='_blank' onclick="if('{pubchem_page}' === '#'){{event.preventDefault(); showError();}}"><button class='{"strikethrough" if not check_link(pubchem_page) else ""}'>PubChem</button></a>
+            <a href='{echa_dossier if check_link(echa_dossier) else "#"}' target='_blank' onclick="if('{echa_dossier}' === '#'){{event.preventDefault(); showError();}}"><button class='{"strikethrough" if not check_link(echa_dossier) else ""}'>ECHA</button></a>
             </div>
             """,
             unsafe_allow_html=True
         )
+
+        # Mostra un messaggio di errore se il link non esiste e viene cliccato
+        st.markdown(
+            """
+            <script>
+            function showError() {
+                let div = document.createElement('div');
+                div.innerHTML = "Link not found";
+                div.style.position = 'fixed';
+                div.style.bottom = '10px';
+                div.style.right = '10px';
+                div.style.backgroundColor = 'red';
+                div.style.color = 'white';
+                div.style.padding = '10px';
+                div.style.borderRadius = '5px';
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+            }
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
+
         st.markdown("<hr>", unsafe_allow_html=True)
         
         col1, col2 = st.columns(2)

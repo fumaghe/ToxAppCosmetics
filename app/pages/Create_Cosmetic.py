@@ -33,12 +33,7 @@ with col1:
     cosmetic_name = st.text_input("Cosmetic Name")
     
     # Campo di testo per il nome dell'azienda con suggerimenti
-    company_name_input = st.text_input("Company Name")
-    company_name_suggestions = st.selectbox("Or select a Company Name from existing ones", [""] + load_company_list())
-    if company_name_suggestions:
-        company_name = company_name_suggestions
-    else:
-        company_name = company_name_input
+    company_name = st.text_input("Company Name")
 
     if "ingredients" not in st.session_state:
         st.session_state.ingredients = []

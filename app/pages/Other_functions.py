@@ -84,26 +84,6 @@ if 'stop_process' not in st.session_state:
 def stop_processing():
     st.session_state.stop_process = True
 
-# Sezione per FindPDF
-st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
-
-num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1)
-start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1)
-
-if st.button('Search PDFs'):
-    st.session_state.stop_process = False
-    with st.spinner('Searching PDFs...'):
-        search_ingredients(start_index_pdf, start_index_pdf + num_ingredients_pdf, st.session_state.stop_process)
-    if st.session_state.stop_process:
-        st.warning('PDF search interrupted.')
-    else:
-        st.success('PDF search completed.')
-
-if st.button('Stop PDF Search'):
-    stop_processing()
-
-st.markdown("<hr>", unsafe_allow_html=True)
-
 # Sezione per FindFromFoto
 st.markdown("<h4>Find from Foto</h4>", unsafe_allow_html=True)
 
@@ -143,3 +123,24 @@ if st.button('Download Database'):
 
 if st.button('Stop Database Download'):
     stop_processing()
+
+
+# Sezione per FindPDF
+st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
+
+num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1)
+start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1)
+
+if st.button('Search PDFs'):
+    st.session_state.stop_process = False
+    with st.spinner('Searching PDFs...'):
+        search_ingredients(start_index_pdf, start_index_pdf + num_ingredients_pdf, st.session_state.stop_process)
+    if st.session_state.stop_process:
+        st.warning('PDF search interrupted.')
+    else:
+        st.success('PDF search completed.')
+
+if st.button('Stop PDF Search'):
+    stop_processing()
+
+st.markdown("<hr>", unsafe_allow_html=True)

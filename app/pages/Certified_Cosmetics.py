@@ -54,13 +54,13 @@ if os.path.exists("app/data/cosmetics.json"):
             st.markdown(
                 f"""
                 <div style='margin-bottom: 10px;'>
-                    <h2 style='color: #333; font-size: 27px;'>Cosmetic Name: {cosmetic['Cosmetic Name']}</h2>
-                    <h4 style='color: #666; font-size: 22px;'>Company Name: {company_name}</h4>
+                    <h2 font-size: 27px;'>Cosmetic Name: {cosmetic['Cosmetic Name']}</h2>
+                    <h4 font-size: 22px;'>Company Name: {company_name}</h4>
                 """, unsafe_allow_html=True
             )
 
             for ingredient in cosmetic["Ingredients"]:
-                st.markdown(f"<li style='color: #555; font-size: 18px;'>{ingredient}</li>", unsafe_allow_html=True)
+                st.markdown(f"<li font-size: 18px;'>{ingredient}</li>", unsafe_allow_html=True)
             
             st.markdown("</ul>", unsafe_allow_html=True)
 

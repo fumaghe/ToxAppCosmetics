@@ -91,11 +91,11 @@ if os.path.exists("app/data/cosmetics.json"):
             toxicity_counts = df['Toxic'].value_counts().reset_index()
             toxicity_counts.columns = ['Toxic', 'Count']
             fig, ax = plt.subplots()
-            colors = ['#ff6666', '#66ff66']
+            colors = ['#66ff66', '#ff6666']
             bars = ax.bar(toxicity_counts['Toxic'], toxicity_counts['Count'], color=colors)
             for bar, color in zip(bars, colors):
                 height = bar.get_height()
-                text_color = '#ff9999' if color == '#ff6666' else '#99ff99'
+                text_color = '#99ff99' if color == '#66ff66' else '#ff9999'
                 ax.annotate(f'{height}',
                             xy=(bar.get_x() + bar.get_width() / 2, 0),
                             ha='right', va='bottom', fontsize=50, color=text_color, weight='bold')
