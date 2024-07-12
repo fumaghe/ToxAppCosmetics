@@ -180,24 +180,27 @@ def create_pdf(df):
 
     # Aggiungi font League Spartan
     font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Regular.ttf')
+    bold_font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Bold.ttf')
     pdfmetrics.registerFont(TTFont('LeagueSpartan', font_path))
+    pdfmetrics.registerFont(TTFont('LeagueSpartan-Bold', bold_font_path))
     c.setFont("LeagueSpartan", 10)
     
     # Aggiungi logo
     logo_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'LOGOTOXAPP.png')
-    c.drawImage(logo_path, margin, height - margin - 50, width=50, preserveAspectRatio=True, mask='auto')
+    if os.path.exists(logo_path):
+        c.drawImage(logo_path, margin, height - margin - 50, width=50, preserveAspectRatio=True, mask='auto')
     
-    # Aggiungi titolo
-    c.setFont("LeagueSpartan", 24)
-    c.drawString(margin + 60, height - margin - 50, "ToxApp PDF")
+    # Aggiungi titolo centrato
+    c.setFont("LeagueSpartan-Bold", 36)
+    c.drawCentredString(width / 2.0, height - margin - 50, "ToxApp PDF")
+    c.setFont("LeagueSpartan", 10)
     
     y = height - margin - 100
-    c.setFont("LeagueSpartan", 10)
     
     for index, row in df.iterrows():
         ingredient_name = row['pcpc_ingredientname']
         c.setFillColor(colors.red)
-        c.setFont("LeagueSpartan", 12)
+        c.setFont("LeagueSpartan-Bold", 12)
         c.drawString(margin, y, ingredient_name)
         c.setFillColor(colors.black)
         c.setFont("LeagueSpartan", 10)
@@ -206,10 +209,14 @@ def create_pdf(df):
         for col in df.columns:
             if col == 'pcpc_ingredientname':
                 continue
-            text = f"{col}: {extract_values(row[col])}"
+            c.setFont("LeagueSpartan-Bold", 10)
+            text = f"{col}:"
+            c.drawString(margin, y, text)
+            c.setFont("LeagueSpartan", 10)
+            text = extract_values(row[col])
             lines = simpleSplit(text, "LeagueSpartan", 10, width - 2*margin)  # Divide il testo in righe
             for line in lines:
-                c.drawString(margin, y, line)
+                c.drawString(margin + 50, y, line)
                 y -= 15
                 if y < margin:
                     c.showPage()
@@ -275,6 +282,25 @@ if st.button('Create File'):
         st.warning('Please select at least one column.')
 
 st.markdown("<hr>", unsafe_allow_html=True)
+
+# Sezione per FindPDF
+st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
+
+num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1)
+start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1)
+
+if st.button('Search PDFs'):
+    st.session_state.stop_process = False
+    with st.spinner('Searching PDFs...'):
+        search_ingredients(start_index_pdf, start_index_pdf + num_ingredients_pdf, st.session_state.stop_process)
+    if st.session_state.stop_process:
+        st.warning('PDF search interrupted.')
+    else:
+        st.success('PDF search completed.')
+
+if st.button('Stop PDF Search'):
+    stop_processing()
+
 
 
 
