@@ -26,16 +26,16 @@ ingredients.db
   - Column: echa_value - Type: TEXT
   - Column: echa_dossier - Type: TEXT
   - Column: EFSA_value - Type: TEXT
-  Column: cosmile_page - Type: TEXT
-Table: cosmetics
-  Column: id - Type: INTEGER
-  Column: cosmetic_name - Type: TEXT
-  Column: company_name - Type: TEXT
-  Column: ingredients - Type: TEXT
-  Column: toxic - Type: TEXT
-Table: sqlite_sequence
-  Column: name - Type:
-  Column: seq - Type:
+  - Column: cosmile_page - Type: TEXT
+- Table: cosmetics
+  - Column: id - Type: INTEGER
+  - Column: cosmetic_name - Type: TEXT
+  - Column: company_name - Type: TEXT
+  - Column: ingredients - Type: TEXT
+  - Column: toxic - Type: TEXT
+- Table: sqlite_sequence
+  - Column: name - Type:
+  - Column: seq - Type:
 
 
 ### File presenti nella repository
