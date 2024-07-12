@@ -4,7 +4,6 @@ def count_echa_values():
     conn = sqlite3.connect('app/data/ingredients.db')
     cursor = conn.cursor()
     
-    # Selezioniamo i primi 6056 ingredienti
     cursor.execute("""
         SELECT echa_value, LD50_CIR, NOAEL_CIR, LD50_pubchem, 
                cir_page, cir_pdf, pubchem_page, echa_dossier, pcpc_ingredientname
@@ -13,7 +12,6 @@ def count_echa_values():
     """)
     rows = cursor.fetchall()
     
-    # Inizializziamo i contatori
     echa_value_count = 0
     no_echa_data_count = 0
     LD50_CIR_count = 0
@@ -26,14 +24,11 @@ def count_echa_values():
     pubchem_page_count = 0
     echa_dossier_count = 0
     
-    # Contatori per numero di dati presenti
     count_data_presence = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
     count_link_presence = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
     
-    # Lista per i nomi degli ingredienti senza valori
     no_value_ingredients = []
     
-    # Iteriamo sui risultati per contare i valori
     for index, row in enumerate(rows):
         has_echa_value = row[0] is not None and row[0] != '[]'
         has_LD50_CIR = row[1] is not None and row[1] != '[]'
@@ -84,7 +79,6 @@ def count_echa_values():
     
     conn.close()
     
-    # Salviamo i nomi degli ingredienti senza valori in NOVALUE.txt
     with open('NOVALUE.txt', 'w') as file:
         for ingredient in no_value_ingredients:
             file.write(f"{ingredient}\n")

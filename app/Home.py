@@ -250,7 +250,8 @@ if ingredient_name:
                     if keyword in context.lower():
                         filtered_values.append(value)
                         break
-            return list(set(filtered_values))  # Rimuove i duplicati
+            return list(set(filtered_values)) 
+        
 
         if source == "CIR":
             st.markdown("<div class='results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)

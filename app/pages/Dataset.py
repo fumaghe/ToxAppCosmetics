@@ -73,7 +73,7 @@ else:
 
 def make_clickable(val):
     if pd.notna(val):
-        return f'<a href="{val}" target="_blank" class="link-symbol">&#128279;</a>'  # Unicode character for link symbol
+        return f'<a href="{val}" target="_blank" class="link-symbol">&#128279;</a>' 
     return ''
 
 filtered_data.loc[:, 'CIR_Page'] = filtered_data['CIR_Page'].apply(make_clickable)
