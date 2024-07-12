@@ -7,6 +7,7 @@ TOXAPP è uno strumento dinamico ed efficiente progettato per estrarre valori to
 Comprende tutto il progetto
 
 Link al sito : [toxapp.streamlit.app](https://toxappcosmetics.streamlit.app/)
+è consigliata la visione del sito con uno zoom al 90%
 
 ### Richiesta del committente
 Il committente Livio Marossi, direttore dell’azienda 
