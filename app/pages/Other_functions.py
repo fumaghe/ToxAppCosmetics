@@ -152,6 +152,11 @@ columns = [
 # Selettore di colonne
 selected_columns = st.multiselect("Select columns to include in the file", columns)
 
+# Selettore di ingredienti condizionato
+if 'pcpc_ingredientname' in selected_columns:
+    ingredient_options = load_ingredient_list()
+    selected_specific_ingredients = st.multiselect("Select specific ingredients (optional)", ingredient_options)
+
 # Selettore di formato file
 file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON", "PDF"])
 
@@ -201,8 +206,13 @@ if st.button('Create File'):
         with st.spinner('Creating file...'):
             # Connettersi al database e recuperare i dati
             conn = sqlite3.connect('app/data/ingredients.db')
-            query = f"SELECT {', '.join(selected_columns)} FROM ingredients"
-            df = pd.read_sql_query(query, conn)
+            if 'pcpc_ingredientname' in selected_columns and selected_specific_ingredients:
+                placeholders = ', '.join('?' for _ in selected_specific_ingredients)
+                query = f"SELECT {', '.join(selected_columns)} FROM ingredients WHERE pcpc_ingredientname IN ({placeholders})"
+                df = pd.read_sql_query(query, conn, params=selected_specific_ingredients)
+            else:
+                query = f"SELECT {', '.join(selected_columns)} FROM ingredients"
+                df = pd.read_sql_query(query, conn)
             conn.close()
 
             # Estrai solo i valori numerici dai dati strutturati
