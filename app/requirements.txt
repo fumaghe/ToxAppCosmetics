@@ -10,4 +10,3 @@ PyMuPDF
 matplotlib
 st-star-rating
 reportlab
-io
