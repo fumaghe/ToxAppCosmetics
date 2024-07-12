@@ -6,7 +6,6 @@ import sqlite3
 from tqdm import tqdm
 import streamlit as st
 
-# Funzione per trovare il link di un ingrediente
 def trova_link(ingrediente):
     base_url = "https://cosmileeurope.eu/wp-content/plugins/inci-db-search/search.php?s="
     parametri = "&l=it-IT&n=10&p=https%3A%2F%2Fcosmileeurope.eu%2Fit%2Finci%2Fingrediente"
@@ -31,14 +30,12 @@ def trova_link(ingrediente):
                 break
     return link
 
-# Funzione per estrarre informazioni dalla pagina dell'ingrediente
 def estrai_informazioni(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     
     info = {}
     
-    # Estrazione delle sezioni principali
     main_content = soup.find('div', class_='inci_db')
     if main_content:
         sections = main_content.find_all(['h2', 'h3', 'p', 'a'])
@@ -70,7 +67,6 @@ def get_pubchem_page(ingredient_name):
     conn.close()
     return result['pubchem_page'] if result else None
 
-# Funzione per caricare la lista degli ingredienti dal database
 def load_ingredient_list():
     conn = get_db_connection()
     cursor = conn.cursor()
