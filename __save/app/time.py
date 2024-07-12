@@ -44,12 +44,10 @@ def measure_search_time(ingredient_ids_or_names):
     average_time = sum(times) / len(times)
     print(f"Average search time: {average_time:.4f} seconds")
     
-# Lista di 20 ingredienti (ID o nomi) per i quali eseguire la ricerca
 ingredienti = ['Acetic Acid', '1,2-Butanediol', '1,5-Pentanediol', '2,4-Diaminophenol Dihydrochloride', '2,3-Naphthalenediol',
                '2,3-Butanediol', '2-Amino-4-Hydroxyethylaminoanisole', '2-Methyl-5-Hydroxyethylaminophenol', '2-Methoxyethanol', '2-Oleamido-1,3-Octadecanediol',
                'Batyl Isostearate', 'Bassia Butyracea Seed Butter', 'Babassu Oil Polyglyceryl-6 Esters', 'Basic Brown 17', 'Basic Violet 3',
                'Euterpe Oleracea Fruit Oil', 'Euterpe Oleracea Sterols', 'Eucalyptus Globulus Leaf Powder', 'Eucalyptus Globulus Leaf Water', 'Beeswax Acid']
 
-# Misura e stampa il tempo medio di ricerca
 measure_search_time(ingredienti)
 

@@ -5,16 +5,16 @@ import streamlit as st
 def find_values(text, term):
     pattern = fr'{term}\s*[:/]?'
     if term == "LD50":
-        pattern = fr'LD\s*[\n]*50\s*[:/]?'  # Gestisce i newline tra LD e 50
+        pattern = fr'LD\s*[\n]*50\s*[:/]?'  
     
     matches = re.finditer(pattern, text, re.IGNORECASE)
     values = []
     for match in matches:
         start_index = match.end()
-        words = text[start_index:start_index+100].split()[:20]  # Estrae 20 parole dopo il match
+        words = text[start_index:start_index+100].split()[:20] 
         for word in words:
-            if re.match(r'\d+(\.\d+)?', word):  # Trova il valore numerico
-                values.append((word, start_index))  # Aggiunge il valore e l'indice di inizio
+            if re.match(r'\d+(\.\d+)?', word): 
+                values.append((word, start_index)) 
                 break
     return values
 
@@ -36,7 +36,7 @@ def find_most_common_values(values):
     if not values:
         return []
     count = Counter([v for v, _ in values])
-    most_common = count.most_common(3)  # Ottiene i 3 più comuni
+    most_common = count.most_common(3)  
     common_values = []
     for value, _ in most_common:
         occurrences = [(v, idx) for v, idx in values if v == value]

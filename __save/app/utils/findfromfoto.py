@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import fitz  
 import pytesseract
 from PIL import Image
 import io
@@ -11,7 +11,6 @@ import logging
 import json
 import streamlit as st
 
-# Configurazione del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -86,7 +85,6 @@ def process_ingredients_from_csv(selected_ingredients, stop_flag):
 
     session = requests.Session()
 
-    # CSS per personalizzare la barra di avanzamento
     st.markdown(
         """
         <style>

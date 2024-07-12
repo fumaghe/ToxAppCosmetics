@@ -6,13 +6,10 @@ import streamlit as st
 from utils.db_utils import load_ingredient_list, update_search_history, search_ingredient, get_db_connection, update_ingredient_value_in_db
 from utils.findvalue import search_and_update_ingredient
 
-# Imposta il layout di Streamlit
 st.set_page_config(layout="wide")
 
-# Percorso all'immagine
 image_path = os.path.join('app', 'static', 'LOGOTOXAPP.png')
 
-# Carica e visualizza l'immagine centrata
 def get_image_base64(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
@@ -127,7 +124,6 @@ st.markdown(
 ingredient_list = load_ingredient_list()
 st.markdown("<div class='center-box'><h3>Search for an ingredient</h3></div>", unsafe_allow_html=True)  
 col1, col2, col3 = st.columns([1, 2, 1])
-# Centrare la casella di ricerca
 with col2:    
     st.markdown("<div class='center-box'>", unsafe_allow_html=True)
     ingredient_name = st.selectbox("Select an ingredient", ingredient_list, label_visibility='collapsed', key="ingredient_selectbox", index=0)
@@ -135,14 +131,12 @@ with col2:
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# Mostrare il risultato della ricerca
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center;'>Search Result</h2>", unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([1.9, 2, 1])
 
 with col2:
-    # Aggiungere un pulsante per cercare i valori online
     if st.button('Search Values Online'):
         with st.spinner('Searching values...'):
             result = search_and_update_ingredient(ingredient_name)
@@ -163,7 +157,6 @@ if ingredient_name:
         def check_link(link):
             return link and link != "#"
 
-        # Display the links as buttons
         st.markdown(
             f"""
             <div class='result-buttons'>
@@ -176,7 +169,6 @@ if ingredient_name:
             unsafe_allow_html=True
         )
 
-        # Mostra un messaggio di errore se il link non esiste e viene cliccato
         st.markdown(
             """
             <script>
@@ -216,11 +208,9 @@ if ingredient_name:
         col1, col2 = st.columns(2)
             
         with col1:    
-            # Aggiungere il selezionatore per la fonte dei dati
-            source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+            source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA", "EFSA"], key="source_selectbox")
         
         with col2:
-            # Aggiungere il selezionatore per il tipo di esposizione
             exposure_type = st.selectbox("Select exposure type", ["Oral", "Inhalate", "Dermal"], key="exposure_type_selectbox")
 
         st.markdown("<hr>", unsafe_allow_html=True)
@@ -237,7 +227,6 @@ if ingredient_name:
                 unsafe_allow_html=True
             )
 
-        # Funzione per raggruppare i contesti con lo stesso valore
         def group_contexts(values_with_contexts):
             grouped = {}
             for value, context in values_with_contexts:
@@ -247,7 +236,6 @@ if ingredient_name:
                     grouped[value] = [context]
             return grouped
 
-        # Funzione per filtrare i contesti in base al tipo di esposizione
         def filter_by_exposure_type(values_with_contexts, exposure_type):
             keywords = {
                 "Oral": ["oral"],
@@ -264,13 +252,11 @@ if ingredient_name:
                         break
             return list(set(filtered_values))  # Rimuove i duplicati
 
-        # Mostrare i valori in base alla fonte selezionata
         if source == "CIR":
             st.markdown("<div class='results'><h3>CIR Results</h3></div>", unsafe_allow_html=True)
             noael_cir = json.loads(ingredient['NOAEL_CIR'])
             ld50_cir = json.loads(ingredient['LD50_CIR'])
 
-            # Filtrare e mostrare i valori in base al tipo di esposizione
             filtered_noael = filter_by_exposure_type(noael_cir, exposure_type)
             filtered_ld50 = filter_by_exposure_type(ld50_cir, exposure_type)
             
@@ -313,7 +299,6 @@ if ingredient_name:
             st.markdown("<div class='results'><h3>PubChem Results</h3></div>", unsafe_allow_html=True)
             ld50_pubchem = json.loads(ingredient['LD50_PubChem'])
 
-            # Filtrare e mostrare i valori in base al tipo di esposizione
             filtered_ld50 = filter_by_exposure_type(ld50_pubchem, exposure_type)
             
             if filtered_ld50:
@@ -344,7 +329,6 @@ if ingredient_name:
                     st.error("Failed to decode ECHA value. Please check the data format.")
 
             if echa_value:
-                # Filtrare e mostrare i valori in base al tipo di esposizione
                 filtered_echa = filter_by_exposure_type(echa_value, exposure_type)
                 
                 if filtered_echa:
@@ -366,9 +350,40 @@ if ingredient_name:
             else:
                 st.write("No ECHA values found.")
 
+        elif source == "EFSA":
+            st.markdown("<div class='results'><h3>EFSA Results</h3></div>", unsafe_allow_html=True)
+            efsa_value_raw = ingredient['EFSA_value']
+            efsa_value = None
+            if efsa_value_raw and efsa_value_raw != "[]":
+                try:
+                    efsa_value = json.loads(efsa_value_raw)
+                except json.JSONDecodeError:
+                    st.error("Failed to decode EFSA value. Please check the data format.")
+
+            if efsa_value:
+                filtered_efsa = filter_by_exposure_type(efsa_value, exposure_type)
+                
+                if filtered_efsa:
+                    st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                    st.markdown("**EFSA Values:** " + " - ".join(map(str, filtered_efsa)))
+                else:
+                    st.write("No values found for the selected exposure type.")
+
+                st.markdown("**EFSA Values:**")
+                grouped_efsa = group_contexts(efsa_value)
+                for value, contexts in grouped_efsa.items():
+                    st.markdown(f"- {value}")
+                    with st.expander("Context"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Valore corretto", key=f"efsa_value_button_{ingredient_id}_{value}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
+            else:
+                st.write("No EFSA values found.")
+
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # Adattare la sezione dell'aggiornamento del valore
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='update-form'>", unsafe_allow_html=True)
@@ -378,19 +393,11 @@ if ingredient_name:
             submit_button = st.form_submit_button(label="Submit")
 
             if submit_button and new_value:
-                conn = get_db_connection()
-                cursor = conn.cursor()
-                cursor.execute("""
-                INSERT INTO ingredients (pcpc_ingredientid, pcpc_ingredientname, value_updated)
-                VALUES (?, ?, ?)
-                """, (ingredient_name, ingredient_name, new_value))
-                conn.commit()
-                conn.close()
+                update_ingredient_value_in_db(ingredient_id, new_value)
                 st.success(f"Value for {ingredient_name} updated successfully.")
                 st.experimental_rerun()
         st.markdown("</div>", unsafe_allow_html=True)
     
-    # Aggiungere il pulsante per rimuovere il value_updated
     if value_updated:
         with col2:
             if st.button("Remove updated value"):
@@ -407,3 +414,5 @@ if ingredient_name:
                 st.experimental_rerun()
 else:
     st.write("No ingredient selected.")
+
+

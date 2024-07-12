@@ -7,7 +7,6 @@ import logging
 import streamlit as st
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Configurazione del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def create_session():
@@ -61,7 +60,7 @@ def process_ingredient(session, ingredient):
     ingredient_id, ingredient_name, cir_page_existing, cir_pdf_existing = ingredient
     if cir_page_existing and cir_pdf_existing:
         logging.info(f"Skipping {ingredient_name}, CIR links already present.")
-        return ingredient_id, None, None  # No need to update if links already exist
+        return ingredient_id, None, None 
 
     try:
         cir_page, cir_pdf = get_cir_links(session, ingredient_id)
@@ -87,7 +86,6 @@ def search_ingredients(start_index, end_index, stop_flag):
 
     session = create_session()
 
-    # CSS per personalizzare la barra di avanzamento
     st.markdown(
         """
         <style>

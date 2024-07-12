@@ -37,7 +37,6 @@ def extract_first_status_link(ingredient_id):
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Cerca i link nella pagina
         status_links = soup.find_all('a', href=True)
         
         if not status_links:
@@ -54,7 +53,7 @@ def extract_first_status_link(ingredient_id):
                     return first_link
                 except requests.RequestException as e:
                     print(f"Errore nell'accedere al link: {e}")
-                    continue  # Prova il prossimo link
+                    continue 
 
         print("Nessun link valido trovato nella pagina CIR.")
         return None

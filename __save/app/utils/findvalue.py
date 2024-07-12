@@ -8,7 +8,7 @@ import io
 import sqlite3
 import logging
 
-# Configurazione del logging
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def get_pubchem_cid(session, ingredient_name):
@@ -91,10 +91,10 @@ def find_values(text, term):
     values = []
     for match in matches:
         start_index = match.end()
-        words = text[start_index:start_index+100].split()[:20]  # Estendi a 20 parole per catturare il valore e l'unità
+        words = text[start_index:start_index+100].split()[:20] 
         for i in range(len(words)):
-            if re.match(r'\d+(\.\d+)?', words[i]):  # Cattura il valore numerico
-                if i + 1 < len(words) and re.match(r'[a-zA-Z/]+', words[i + 1]):  # Cattura l'unità di misura
+            if re.match(r'\d+(\.\d+)?', words[i]): 
+                if i + 1 < len(words) and re.match(r'[a-zA-Z/]+', words[i + 1]): 
                     value = f"{words[i]} {words[i + 1]}"
                     values.append((value, start_index))
                     break
@@ -116,7 +116,6 @@ def process_ingredient(session, db_path, ingredient):
     ingredient_name = ingredient['pcpc_ingredientname']
     ingredient_id = ingredient['pcpc_ingredientid']
 
-    # Apri una nuova connessione SQLite in ogni thread
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
@@ -128,7 +127,6 @@ def process_ingredient(session, db_path, ingredient):
         'LD50_PubChem': []
     }
 
-    # Ricerca in CIR
     start_time_cir = time.time()
     url = f"https://cir-reports.cir-safety.org/cir-ingredient-status-report/?id={ingredient_id}"
     status_link = extract_first_status_link(session, url)
@@ -150,7 +148,6 @@ def process_ingredient(session, db_path, ingredient):
             logging.error(f"Error processing CIR data for {ingredient_name}: {e}")
     end_time_cir = time.time() - start_time_cir
 
-    # Ricerca in PubChem
     start_time_pubchem = time.time()
     cid = get_pubchem_cid(session, ingredient_name)
     pubchem_values_found = False
@@ -161,7 +158,6 @@ def process_ingredient(session, db_path, ingredient):
             pubchem_values_found = True
     end_time_pubchem = time.time() - start_time_pubchem
 
-    # Salva il risultato nel database
     cursor.execute("REPLACE INTO ingredients (pcpc_ingredientid, pcpc_ingredientname, NOAEL_CIR, LD50_CIR, LD50_PubChem) VALUES (?, ?, ?, ?, ?)",
                    (ingredient_id, ingredient_name, json.dumps(result['NOAEL_CIR']), json.dumps(result['LD50_CIR']), json.dumps(result['LD50_PubChem'])))
     conn.commit()
@@ -170,7 +166,6 @@ def process_ingredient(session, db_path, ingredient):
     return result, end_time_cir, end_time_pubchem, cir_values_found, pubchem_values_found
 
 def search_and_update_ingredient(ingredient_name, db_path='ingredients.db'):
-    # Funzione per avviare la ricerca e aggiornare l'ingrediente
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute("SELECT pcpc_ingredientid, pcpc_ingredientname FROM ingredients WHERE pcpc_ingredientname=?", (ingredient_name,))

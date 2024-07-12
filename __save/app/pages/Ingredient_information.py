@@ -34,12 +34,10 @@ def get_pubchem_page(ingredient_name):
     conn.close()
     return result['pubchem_page'] if result else None
 
-# Streamlit page
 st.markdown("<h1 style='text-align: center; font-size: 50px;'>Ingredient Informations</h1>", unsafe_allow_html=True)
 
 ingredient_list = load_ingredient_list()
 
-# Select ingredient
 selected_ingredient = st.selectbox("Select an Ingredient", ingredient_list)
 
 if selected_ingredient:

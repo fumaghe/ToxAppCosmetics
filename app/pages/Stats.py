@@ -68,11 +68,9 @@ if os.path.exists("app/data/cosmetics.json"):
         if 'Company Name' not in df.columns:
             st.error("The data does not contain the 'Company Name' field.")
         else:
-            # Invert the position of Toxic and Ingredients columns
             columns = ['Cosmetic Name', 'Company Name', 'Ingredients', 'Toxic'] + [col for col in df.columns if col not in ['Cosmetic Name', 'Company Name', 'Ingredients', 'Toxic']]
             df = df[columns]
 
-            # Filter by toxicity
             st.markdown("<h2 class='section-title'>Filter by Toxicity</h2>", unsafe_allow_html=True)
             toxicity_filter = st.radio("Select Toxicity", ('All', 'Yes', 'No'))
             if toxicity_filter != 'All':
@@ -114,7 +112,6 @@ if os.path.exists("app/data/cosmetics.json"):
                 companies.columns = ['Company Name', 'Number of Cosmetics']
                 st.dataframe(companies)
 
-            # Toxicity of Ingredients
             toxic_ingredients = df.explode('Ingredients')[['Ingredients', 'Toxic']]
             toxic_ingredients['Ingredient Name'] = toxic_ingredients['Ingredients'].str.split(' - ').str[0]
             ingredient_toxicity_counts = toxic_ingredients.groupby(['Ingredient Name', 'Toxic']).size().unstack().fillna(0)

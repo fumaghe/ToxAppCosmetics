@@ -12,7 +12,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 import json
-from tqdm import tqdm  # Import tqdm per la barra di avanzamento
+from tqdm import tqdm 
 
 def initialize_driver():
     options = webdriver.ChromeOptions()
@@ -24,7 +24,7 @@ def initialize_driver():
     options.add_argument('--disable-software-rasterizer')
     options.add_argument('--headless')
     options.add_argument('--window-size=1920x1080')
-    options.add_argument('--log-level=3')  # Silenziare il logging
+    options.add_argument('--log-level=3')  
     options.add_argument('--disable-logging')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     return driver
@@ -54,7 +54,6 @@ def extract_values(text):
     for match in matches:
         value, unit = match.group(2), match.group(3)
         echa_number = f"{value} {unit}"
-        # Trova il contesto
         words = text.split()
         value_index = words.index(value)
         context_before = ' '.join(words[max(0, value_index-10):value_index])
@@ -65,7 +64,6 @@ def extract_values(text):
 
 def get_toxicity_data_for_ingredient(driver, ingredient):
     try:
-        # Make the API request to get the substance details
         api_url = f"https://chem.echa.europa.eu/api-substance/v1/substance?pageIndex=1&pageSize=100&searchText={ingredient.replace(' ', '%20')}"
         response = requests.get(api_url)
         response.raise_for_status()
@@ -75,11 +73,9 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
             print(f"No data found for ingredient: {ingredient}")
             return None, None
         
-        # Extract the rmlId from the first item in the results
         rmlId = data['items'][0]['substanceIndex']['rmlId']
         print(f"Extracted rmlId: {rmlId}")
         
-        # Make the API request to get the dossier details
         dossier_api_url = f"https://chem.echa.europa.eu/api-dossier-list/v1/dossier?pageIndex=1&pageSize=100&rmlId={rmlId}&registrationStatuses=Active"
         dossier_response = requests.get(dossier_api_url)
         dossier_response.raise_for_status()
@@ -89,29 +85,22 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
             print(f"No dossier data found for rmlId: {rmlId}")
             return None, None
         
-        # Extract the assetExternalId from the first item in the results
         asset_external_id = dossier_data['items'][0]['assetExternalId']
         print(f"Extracted assetExternalId: {asset_external_id}")
         
-        # Construct the URL for the HTML page
         html_page_url = f"https://chem.echa.europa.eu/html-pages/{asset_external_id}/index.html"
         print(f"HTML page URL: {html_page_url}")
 
-        # Navigate to the HTML page
         print(f"Navigating to HTML page: {html_page_url}")
         driver.get(html_page_url)
 
-        # Attendere che la pagina sia completamente caricata
         WebDriverWait(driver, 10).until(lambda driver: driver.current_url == html_page_url)
 
-        # Estrai il link specifico per i dati di tossicità acuta
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
 
-        # Cerca il link nella sezione "Acute Toxicity"
         href_value = extract_href(soup, 'Acute Toxicity')
         
-        # Se non trova il link nella sezione "Acute Toxicity", cerca nella sezione "Toxicological information"
         if not href_value:
             print("Trying to find link in Toxicological information section.")
             href_value = extract_href(soup, 'Toxicological information')
@@ -124,13 +113,10 @@ def get_toxicity_data_for_ingredient(driver, ingredient):
         document_url = f"https://chem.echa.europa.eu/html-pages/{asset_external_id}/documents/{href_value}.html"
         print(f"Document URL: {document_url}")
 
-        # Fetch the document content
         document_content = fetch_document_content(document_url)
         
-        # Parse the document content
         soup = BeautifulSoup(document_content, 'html.parser')
 
-        # Cerca il testo all'interno della pagina per trovare NOAEL o LD50
         text_content = soup.get_text(separator=' ', strip=True)
         echa_value = extract_values(text_content)
         print("ECHA Value:", echa_value)
@@ -154,7 +140,6 @@ def get_toxicity_data(ingredient, driver):
                     if result:
                         results = result
                         document_url = url
-                        # Cancel remaining futures
                         for f in futures:
                             f.cancel()
                         break
@@ -167,7 +152,7 @@ def update_database(start_index, num_ingredients):
     conn = sqlite3.connect('app\data\ingredients.db')
     cursor = conn.cursor()
 
-    # Selezionare gli ingredienti dal database
+
     cursor.execute("SELECT pcpc_ingredientid, pcpc_ingredientname FROM ingredients LIMIT ? OFFSET ?", (num_ingredients, start_index))
     ingredients = cursor.fetchall()
 
@@ -175,7 +160,6 @@ def update_database(start_index, num_ingredients):
     total_found = 0
     times = []
 
-    # Usa tqdm per la barra di avanzamento
     for ingredient_id, ingredient_name in tqdm(ingredients, desc="Updating database"):
         start_time = time.time()
         echa_value, echa_dossier = get_toxicity_data(ingredient_name, driver)
@@ -187,7 +171,7 @@ def update_database(start_index, num_ingredients):
         if not echa_value:
             echa_value = "[]"
         else:
-            echa_value = json.dumps(echa_value)  # Convert the list to a JSON string
+            echa_value = json.dumps(echa_value)  
             total_found += 1
         
         cursor.execute("UPDATE ingredients SET echa_value = ?, echa_dossier = ? WHERE pcpc_ingredientid = ?", (echa_value, echa_dossier, ingredient_id))
@@ -198,7 +182,6 @@ def update_database(start_index, num_ingredients):
     conn.close()
     print(f"Total ingredients found: {total_found} out of {num_ingredients}")
 
-    # Plotting the times
     indices = list(range(start_index, start_index + len(times)))
     ingredients, durations = zip(*times)
     plt.figure(figsize=(12, 6))
@@ -210,11 +193,9 @@ def update_database(start_index, num_ingredients):
     plt.tight_layout()
     plt.show()
 
-# Parametri di esempio
 start_index = 5976
 num_ingredients = 100
 
-# Eseguire l'aggiornamento del database
 start_time = time.time()
 update_database(start_index, num_ingredients)
 end_time = time.time()

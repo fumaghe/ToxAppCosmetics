@@ -6,10 +6,8 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-# Configurazione del logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Helper function to retrieve CID from PubChem
 def get_pubchem_cid(session, ingredient_name):
     url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{ingredient_name}/cids/JSON"
     try:
@@ -90,8 +88,6 @@ def test_retrieval(db_path, start_index=0, num_ingredients=1000000):
                 except Exception as e:
                     logging.error(f"Error processing ingredient: {e}")
 
-# Path to the database
 db_path = 'ingredients.db'
 
-# Running the test
 test_retrieval(db_path, start_index=1000, num_ingredients=50)
