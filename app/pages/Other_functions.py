@@ -153,15 +153,15 @@ columns = [
 ]
 
 # Selettore di colonne
-selected_columns = st.multiselect("Select columns to include in the file", columns)
+selected_columns = st.multiselect("Select columns to include in the file", columns, key="columns_multiselect")
 
 # Selettore di ingredienti condizionato
 if 'pcpc_ingredientname' in selected_columns:
     ingredient_options = load_ingredient_list()
-    selected_specific_ingredients = st.multiselect("Select specific ingredients (optional)", ingredient_options)
+    selected_specific_ingredients = st.multiselect("Select specific ingredients (optional)", ingredient_options, key="ingredients_multiselect")
 
 # Selettore di formato file
-file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON", "PDF"])
+file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON", "PDF"], key="file_format_select")
 
 def extract_values(data):
     try:
@@ -283,13 +283,15 @@ if st.button('Create File'):
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
+
+
 # Sezione per FindPDF
 st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
 
-num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1)
-start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1)
+num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1, key="num_ingredients_pdf")
+start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1, key="start_index_pdf")
 
-if st.button('Search PDFs'):
+if st.button('Search PDFs', key="search_pdfs_button"):
     st.session_state.stop_process = False
     with st.spinner('Searching PDFs...'):
         search_ingredients(start_index_pdf, start_index_pdf + num_ingredients_pdf, st.session_state.stop_process)
@@ -298,26 +300,5 @@ if st.button('Search PDFs'):
     else:
         st.success('PDF search completed.')
 
-if st.button('Stop PDF Search'):
-    stop_processing()
-
-
-
-
-# Sezione per FindPDF
-st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
-
-num_ingredients_pdf = st.number_input("Number of ingredients to search", min_value=1, value=10, step=1)
-start_index_pdf = st.number_input("Starting index", min_value=0, value=0, step=1)
-
-if st.button('Search PDFs'):
-    st.session_state.stop_process = False
-    with st.spinner('Searching PDFs...'):
-        search_ingredients(start_index_pdf, start_index_pdf + num_ingredients_pdf, st.session_state.stop_process)
-    if st.session_state.stop_process:
-        st.warning('PDF search interrupted.')
-    else:
-        st.success('PDF search completed.')
-
-if st.button('Stop PDF Search'):
+if st.button('Stop PDF Search', key="stop_pdf_search_button"):
     stop_processing()
