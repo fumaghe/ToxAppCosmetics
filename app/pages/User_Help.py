@@ -48,7 +48,7 @@ def save_message(name, page, details, file_path='user_messages.csv'):
 
     messages_df.to_csv(file_path, index=False)
 
-def save_review(name, rating, review, file_path='app/reviews.csv'):
+def save_review(name, rating, review, file_path='reviews.csv'):
     new_review = pd.DataFrame({
         'Name': [name],
         'Rating': [rating],
