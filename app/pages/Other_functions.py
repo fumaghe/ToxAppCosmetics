@@ -124,14 +124,26 @@ if st.button('Download Database'):
 if st.button('Stop Database Download'):
     stop_processing()
 
-
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # Sezione per creare e scaricare un file dalle colonne selezionate
 st.markdown("<h4>Create and Download File</h4>", unsafe_allow_html=True)
 
-# Elenco delle colonne disponibili
-columns = ['pcpc_ingredientid', 'pcpc_ingredientname', 'NOAEL_CIR', 'LD50_CIR', 'LD50_PubChem', 'value_updated', 'cir_page', 'cir_pdf', 'pubchem_page', 'echa_value', 'echa_dossier']
+# Elenco delle colonne disponibili, inclusa EFSA_value
+columns = [
+    'pcpc_ingredientid', 
+    'pcpc_ingredientname', 
+    'NOAEL_CIR', 
+    'LD50_CIR', 
+    'LD50_PubChem', 
+    'value_updated', 
+    'cir_page', 
+    'cir_pdf', 
+    'pubchem_page', 
+    'echa_value', 
+    'echa_dossier', 
+    'EFSA_value'  # Aggiungi la colonna EFSA_value
+]
 
 # Selettore di colonne
 selected_columns = st.multiselect("Select columns to include in the file", columns)
@@ -185,7 +197,6 @@ if st.button('Create File'):
         st.warning('Please select at least one column.')
 
 st.markdown("<hr>", unsafe_allow_html=True)
-
 
 # Sezione per FindPDF
 st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)

@@ -217,7 +217,7 @@ if ingredient_name:
             
         with col1:    
             # Aggiungere il selezionatore per la fonte dei dati
-            source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA"], key="source_selectbox")
+            source = st.selectbox("Select data source", ["CIR", "PubChem", "ECHA", "EFSA"], key="source_selectbox")
         
         with col2:
             # Aggiungere il selezionatore per il tipo di esposizione
@@ -366,6 +366,39 @@ if ingredient_name:
             else:
                 st.write("No ECHA values found.")
 
+        elif source == "EFSA":
+            st.markdown("<div class='results'><h3>EFSA Results</h3></div>", unsafe_allow_html=True)
+            efsa_value_raw = ingredient['EFSA_value']
+            efsa_value = None
+            if efsa_value_raw and efsa_value_raw != "[]":
+                try:
+                    efsa_value = json.loads(efsa_value_raw)
+                except json.JSONDecodeError:
+                    st.error("Failed to decode EFSA value. Please check the data format.")
+
+            if efsa_value:
+                # Filtrare e mostrare i valori in base al tipo di esposizione
+                filtered_efsa = filter_by_exposure_type(efsa_value, exposure_type)
+                
+                if filtered_efsa:
+                    st.markdown(f"<div class='results'><h4>{exposure_type} Values</h4></div>", unsafe_allow_html=True)
+                    st.markdown("**EFSA Values:** " + " - ".join(map(str, filtered_efsa)))
+                else:
+                    st.write("No values found for the selected exposure type.")
+
+                st.markdown("**EFSA Values:**")
+                grouped_efsa = group_contexts(efsa_value)
+                for value, contexts in grouped_efsa.items():
+                    st.markdown(f"- {value}")
+                    with st.expander("Context"):
+                        st.write("\n\n".join(map(str, contexts)))
+                    if st.button("Valore corretto", key=f"efsa_value_button_{ingredient_id}_{value}"):
+                        update_ingredient_value_in_db(ingredient_id, value)
+                        st.success(f"Value for {ingredient['name']} updated successfully to {value}.")
+                        st.experimental_rerun()
+            else:
+                st.write("No EFSA values found.")
+
     st.markdown("<hr>", unsafe_allow_html=True)
 
     # Adattare la sezione dell'aggiornamento del valore
@@ -378,14 +411,7 @@ if ingredient_name:
             submit_button = st.form_submit_button(label="Submit")
 
             if submit_button and new_value:
-                conn = get_db_connection()
-                cursor = conn.cursor()
-                cursor.execute("""
-                INSERT INTO ingredients (pcpc_ingredientid, pcpc_ingredientname, value_updated)
-                VALUES (?, ?, ?)
-                """, (ingredient_name, ingredient_name, new_value))
-                conn.commit()
-                conn.close()
+                update_ingredient_value_in_db(ingredient_id, new_value)
                 st.success(f"Value for {ingredient_name} updated successfully.")
                 st.experimental_rerun()
         st.markdown("</div>", unsafe_allow_html=True)
@@ -407,3 +433,5 @@ if ingredient_name:
                 st.experimental_rerun()
 else:
     st.write("No ingredient selected.")
+
+

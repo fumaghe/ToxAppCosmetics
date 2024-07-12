@@ -35,6 +35,7 @@ def search_ingredient(ingredient_name_or_id):
         LD50_PubChem, 
         echa_value,
         echa_dossier,
+        EFSA_value,
         value_updated, 
         cir_page, 
         cir_pdf, 
