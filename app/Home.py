@@ -82,6 +82,7 @@ st.markdown(
         border: 2px solid #ff0000;
         border-radius: 5px;
         flex: 1;
+        color: black; /* Imposta il colore del testo */
     }}
     .result-buttons a button.light-theme {{
         color: black;
