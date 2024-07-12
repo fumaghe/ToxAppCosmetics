@@ -82,10 +82,15 @@ st.markdown(
         font-size: 16px;
         cursor: pointer;
         background-color: transparent;
-        color: black;
         border: 2px solid #ff0000;
         border-radius: 5px;
         flex: 1;
+    }}
+    .result-buttons a button.light-theme {{
+        color: black;
+    }}
+    .result-buttons a button.dark-theme {{
+        color: white;
     }}
     .result-buttons a button:hover {{
         background-color: #ff0000;
@@ -188,6 +193,19 @@ if ingredient_name:
                 document.body.appendChild(div);
                 setTimeout(() => div.remove(), 3000);
             }
+
+            // Detect the Streamlit theme
+            function applyTheme() {
+                const bodyStyles = window.getComputedStyle(document.body);
+                const theme = bodyStyles.getPropertyValue('--primary-background-color') === 'rgb(0, 0, 0)' ? 'dark' : 'light';
+                const buttons = document.querySelectorAll('.result-buttons button');
+                buttons.forEach(button => {
+                    button.classList.add(theme === 'dark' ? 'dark-theme' : 'light-theme');
+                });
+            }
+
+            // Apply theme on load
+            document.addEventListener('DOMContentLoaded', applyTheme);
             </script>
             """,
             unsafe_allow_html=True

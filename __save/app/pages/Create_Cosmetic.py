@@ -6,7 +6,6 @@ import streamlit as st
 import json
 from app.utils.db_utils import load_ingredient_list, search_ingredient, load_company_list, create_cosmetics_table
 
-# Crea la tabella cosmetics se non esiste
 create_cosmetics_table()
 
 st.markdown(
@@ -32,7 +31,6 @@ col1, col2 = st.columns(2)
 with col1:
     cosmetic_name = st.text_input("Cosmetic Name")
     
-    # Campo di testo per il nome dell'azienda con suggerimenti
     company_name = st.text_input("Company Name")
 
     if "ingredients" not in st.session_state:
@@ -67,7 +65,6 @@ with col1:
         else:
             cosmetics_data = []
 
-        # Controllo per nome univoco
         existing_names = [cosmetic['Cosmetic Name'] for cosmetic in cosmetics_data]
         if cosmetic_name in existing_names:
             st.error("Name already exists, please try a different name.")

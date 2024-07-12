@@ -36,12 +36,10 @@ def load_data_from_db():
     conn.close()
     return data
 
-# Load data from the database
 data = load_data_from_db()
 
 st.markdown("<h1 style='text-align: center; font-size: 50px;'>Dataset</h1>", unsafe_allow_html=True)
 
-# Page layout
 col1, col2 = st.columns([5, 5])
 
 with col1:
@@ -73,19 +71,16 @@ if selected_letter == '1':
 else:
     filtered_data = data[data['Ingredient'].str.startswith(selected_letter, na=False)]
 
-# Convert URLs to clickable links with a symbol
 def make_clickable(val):
     if pd.notna(val):
         return f'<a href="{val}" target="_blank" class="link-symbol">&#128279;</a>'  # Unicode character for link symbol
     return ''
 
-# Apply the function to the relevant columns using .loc to avoid SettingWithCopyWarning
 filtered_data.loc[:, 'CIR_Page'] = filtered_data['CIR_Page'].apply(make_clickable)
 filtered_data.loc[:, 'CIR_PDF'] = filtered_data['CIR_PDF'].apply(make_clickable)
 filtered_data.loc[:, 'PubChem_Page'] = filtered_data['PubChem_Page'].apply(make_clickable)
 filtered_data.loc[:, 'ECHA_Dossier'] = filtered_data['ECHA_Dossier'].apply(make_clickable)
 
-# Render the table with clickable links
 st.markdown(
     """
     <style>
