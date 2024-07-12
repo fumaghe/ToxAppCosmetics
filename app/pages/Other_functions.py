@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 import os
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.utils import simpleSplit
+from io import BytesIO
 from utils.findpdf import search_ingredients
 from utils.findfromfoto import process_ingredients_from_csv
 from utils.db_utils import load_ingredient_list
@@ -57,7 +61,7 @@ st.markdown(
         font-size: 28px;
         text-align: center;
         margin-top: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 20px.
     }
     .result-buttons {
         width: 100%;
@@ -149,12 +153,48 @@ columns = [
 selected_columns = st.multiselect("Select columns to include in the file", columns)
 
 # Selettore di formato file
-file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON"])
+file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON", "PDF"])
 
-def flatten_column(data):
-    if isinstance(data, list):
-        return '; '.join([f"{item[0]}: {item[1]}" if isinstance(item, list) else str(item) for item in data])
+def extract_values(data):
+    try:
+        data_list = eval(data)
+        if isinstance(data_list, list):
+            return ', '.join([item[0] for item in data_list if isinstance(item, list)])
+    except:
+        return data
     return data
+
+def create_pdf(df):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    margin = 40  # Margine per il testo
+    
+    c.setFont("Helvetica", 10)
+    
+    y = height - margin
+    for index, row in df.iterrows():
+        for col in df.columns:
+            text = f"{col}: {extract_values(row[col])}"
+            lines = simpleSplit(text, "Helvetica", 10, width - 2*margin)  # Divide il testo in righe
+            for line in lines:
+                c.drawString(margin, y, line)
+                y -= 15
+                if y < margin:
+                    c.showPage()
+                    c.setFont("Helvetica", 10)
+                    y = height - margin
+            y -= 15  # Spazio tra i campi
+        c.drawString(margin, y, "-----------------------------")
+        y -= 15
+        if y < margin:
+            c.showPage()
+            c.setFont("Helvetica", 10)
+            y = height - margin
+    
+    c.save()
+    buffer.seek(0)
+    return buffer
 
 if st.button('Create File'):
     if selected_columns:
@@ -165,14 +205,10 @@ if st.button('Create File'):
             df = pd.read_sql_query(query, conn)
             conn.close()
 
-            # Flatten columns that contain lists
+            # Estrai solo i valori numerici dai dati strutturati
             for col in selected_columns:
                 if df[col].dtype == 'object':
-                    try:
-                        df[col] = df[col].apply(eval)  # Convert string representation of list back to list
-                    except:
-                        pass
-                    df[col] = df[col].apply(flatten_column)
+                    df[col] = df[col].apply(extract_values)
 
             if file_format == "CSV":
                 # Creare il file CSV
@@ -189,6 +225,12 @@ if st.button('Create File'):
                 file_data = df.to_json(orient='records')
                 mime = 'application/json'
                 file_name = "ingredients.json"
+            elif file_format == "PDF":
+                # Creare il file PDF
+                pdf = create_pdf(df)
+                file_data = pdf.getvalue()
+                mime = 'application/pdf'
+                file_name = "ingredients.pdf"
             
             # Pulsante per scaricare il file
             st.download_button(label=f"Download {file_format}", data=file_data, file_name=file_name, mime=mime)
