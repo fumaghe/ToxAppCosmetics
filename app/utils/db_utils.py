@@ -138,7 +138,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             if noael_cir:
                 st.markdown("**NOAEL Values:**")
                 for idx, (value, context) in enumerate(noael_cir):
-                    st.markdown(f"- {value} mg/kg")
+                    st.markdown(f"- {value} ")
                     with st.expander("Context"):
                         st.write(context)
                     if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{idx}"):
@@ -151,7 +151,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             if ld50_cir:
                 st.markdown("**LD50 Values:**")
                 for idx, (value, context) in enumerate(ld50_cir):
-                    st.markdown(f"- {value} mg/kg")
+                    st.markdown(f"- {value}")
                     with st.expander("Context"):
                         st.write(context)
                     if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{idx}"):
@@ -168,7 +168,7 @@ def find_ingredient_id_and_extract_link(ingredient_name):
             if ld50_pubchem:
                 st.markdown("**LD50 Values:**")
                 for idx, (value, context) in enumerate(ld50_pubchem):
-                    st.markdown(f"- {value} mg/kg")
+                    st.markdown(f"- {value}")
                     with st.expander("Context"):
                         st.write(context)
                     if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{idx}"):

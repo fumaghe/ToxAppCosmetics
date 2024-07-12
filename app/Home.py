@@ -266,7 +266,7 @@ if ingredient_name:
                 st.markdown("**NOAEL Values:**")
                 grouped_noael = group_contexts(noael_cir)
                 for value, contexts in grouped_noael.items():
-                    st.markdown(f"- {value} mg/kg")
+                    st.markdown(f"- {value}")
                     with st.expander("Context"):
                         st.write("\n\n".join(map(str, contexts)))
                     if st.button("Verified Value", key=f"noael_button_{ingredient_id}_{value}"):
@@ -278,7 +278,7 @@ if ingredient_name:
                 st.markdown("**LD50 Values:**")
                 grouped_ld50 = group_contexts(ld50_cir)
                 for value, contexts in grouped_ld50.items():
-                    st.markdown(f"- {value} mg/kg")
+                    st.markdown(f"- {value}")
                     with st.expander("Context"):
                         st.write("\n\n".join(map(str, contexts)))
                     if st.button("Valore corretto", key=f"ld50_button_{ingredient_id}_{value}"):
@@ -301,7 +301,7 @@ if ingredient_name:
             st.markdown("**LD50 Values:**")
             grouped_ld50_pubchem = group_contexts(ld50_pubchem)
             for value, contexts in grouped_ld50_pubchem.items():
-                st.markdown(f"- {value} mg/kg")
+                st.markdown(f"- {value}")
                 with st.expander("Context"):
                     st.write("\n\n".join(map(str, contexts)))
                 if st.button("Valore corretto", key=f"pubchem_ld50_button_{ingredient_id}_{value}"):

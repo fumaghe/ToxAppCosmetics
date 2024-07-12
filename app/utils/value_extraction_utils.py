@@ -24,7 +24,7 @@ def display_values(common_values, pdf_text):
         return
 
     for value, occurrences in common_values:
-        with st.expander(f"Value: {value} mg/kg"):
+        with st.expander(f"Value: {value}"):
             for i, (_, start_index) in enumerate(occurrences, 1):
                 text_before = pdf_text[:start_index].split()[-20:]
                 text_after = pdf_text[start_index:].split()[:20]
