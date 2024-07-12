@@ -5,6 +5,9 @@ import os
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit
+from reportlab.lib import colors
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
 from io import BytesIO
 from utils.findpdf import search_ingredients
 from utils.findfromfoto import process_ingredients_from_csv
@@ -54,32 +57,32 @@ st.markdown(
         text-align: center;
         font-size: 24px;
         margin-top: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 20px.
     }
     .search-result {
         width: 100%;
-        font-size: 28px;
-        text-align: center;
-        margin-top: 20px;
+        font-size: 28px.
+        text-align: center.
+        margin-top: 20px.
         margin-bottom: 20px.
     }
     .result-buttons {
-        width: 100%;
-        font-size: 18px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-evenly;
+        width: 100%.
+        font-size: 18px.
+        margin-top: 10px.
+        margin-bottom: 10px.
+        display: flex.
+        justify-content: space-evenly.
     }
     .stProgress > div > div > div > div {
-        background-color: red;
+        background-color: red.
     }
     </style>
     """, unsafe_allow_html=True
 )
 
 # Centrare il titolo
-st.markdown("<h1 style='text-align: center; font-size: 50px;'>Other Functions</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center. font-size: 50px.'>Other Functions</h1>", unsafe_allow_html=True)
 
 # Stato per l'interruzione
 if 'stop_process' not in st.session_state:
@@ -174,27 +177,50 @@ def create_pdf(df):
     c = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
     margin = 40  # Margine per il testo
+
+    # Aggiungi font League Spartan
+    font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Regular.ttf')
+    pdfmetrics.registerFont(TTFont('LeagueSpartan', font_path))
+    c.setFont("LeagueSpartan", 10)
     
-    c.setFont("Helvetica", 10)
+    # Aggiungi logo
+    logo_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'LOGOTOXAPP.png')
+    c.drawImage(logo_path, margin, height - margin - 50, width=50, preserveAspectRatio=True, mask='auto')
     
-    y = height - margin
+    # Aggiungi titolo
+    c.setFont("LeagueSpartan", 24)
+    c.drawString(margin + 60, height - margin - 50, "ToxApp PDF")
+    
+    y = height - margin - 100
+    c.setFont("LeagueSpartan", 10)
+    
     for index, row in df.iterrows():
+        ingredient_name = row['pcpc_ingredientname']
+        c.setFillColor(colors.red)
+        c.setFont("LeagueSpartan", 12)
+        c.drawString(margin, y, ingredient_name)
+        c.setFillColor(colors.black)
+        c.setFont("LeagueSpartan", 10)
+        y -= 15
+        
         for col in df.columns:
+            if col == 'pcpc_ingredientname':
+                continue
             text = f"{col}: {extract_values(row[col])}"
-            lines = simpleSplit(text, "Helvetica", 10, width - 2*margin)  # Divide il testo in righe
+            lines = simpleSplit(text, "LeagueSpartan", 10, width - 2*margin)  # Divide il testo in righe
             for line in lines:
                 c.drawString(margin, y, line)
                 y -= 15
                 if y < margin:
                     c.showPage()
-                    c.setFont("Helvetica", 10)
+                    c.setFont("LeagueSpartan", 10)
                     y = height - margin
             y -= 15  # Spazio tra i campi
-        c.drawString(margin, y, "-----------------------------")
+        c.line(margin, y, width - margin, y)  # Aggiungi linea di separazione
         y -= 15
         if y < margin:
             c.showPage()
-            c.setFont("Helvetica", 10)
+            c.setFont("LeagueSpartan", 10)
             y = height - margin
     
     c.save()
@@ -249,6 +275,8 @@ if st.button('Create File'):
         st.warning('Please select at least one column.')
 
 st.markdown("<hr>", unsafe_allow_html=True)
+
+
 
 # Sezione per FindPDF
 st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
