@@ -134,16 +134,6 @@ st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown('<div class="full-width search-result">', unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center;'>Search Result</h2>", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([1.9, 2, 1])
-
-with col2:
-    if st.button('Search Values Online'):
-        with st.spinner('Searching values...'):
-            result = search_and_update_ingredient(ingredient_name)
-            if result:
-                st.success(f"Values for {ingredient_name} have been updated.")
-            else:
-                st.error(f"Could not find values for {ingredient_name} online.")
 
 if ingredient_name:
     ingredient = search_ingredient(ingredient_name)
