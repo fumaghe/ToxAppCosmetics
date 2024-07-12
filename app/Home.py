@@ -113,6 +113,30 @@ st.markdown(
     .strikethrough {{
         text-decoration: line-through;
     }}
+    .indicator-dot {{
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        position: relative;
+        border: 1px solid #000;
+    }}
+    .green-dot {{
+        background-color: #00FF00;  /* Verde fluo */
+    }}
+    .red-dot {{
+        background-color: #FF4500;  /* Rosso fluo */
+    }}
+    .indicator-dot::after {{
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+    }}
     </style>
     <div class="center-image">
         <img src="data:image/png;base64,{image_base64}" alt="Logo">
@@ -168,10 +192,10 @@ if ingredient_name:
                 div.style.position = 'fixed';
                 div.style.bottom = '10px';
                 div.style.right = '10px';
-                div.style.backgroundColor = 'red';
-                div.style.color = 'white';
-                div.style.padding = '10px';
-                div.style.borderRadius = '5px';
+                div.style.backgroundColor: 'red';
+                div.style.color: 'white';
+                div.style.padding: '10px';
+                div.style.borderRadius: '5px';
                 document.body.appendChild(div);
                 setTimeout(() => div.remove(), 3000);
             }
@@ -202,6 +226,20 @@ if ingredient_name:
         
         with col2:
             exposure_type = st.selectbox("Select exposure type", ["Oral", "Inhalate", "Dermal"], key="exposure_type_selectbox")
+
+        # Indicator section
+        def has_values(source_data):
+            return bool(source_data) and source_data != "[]"
+
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.markdown(f"<div style='text-align: center;'><strong>CIR:</strong><br><span class='indicator-dot {'green-dot' if has_values(ingredient['NOAEL_CIR']) or has_values(ingredient['LD50_CIR']) else 'red-dot'}'></span></div>", unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"<div style='text-align: center;'><strong>ECHA:</strong><br><span class='indicator-dot {'green-dot' if has_values(ingredient['echa_value']) else 'red-dot'}'></span></div>", unsafe_allow_html=True)
+        with col3:
+            st.markdown(f"<div style='text-align: center;'><strong>PubChem:</strong><br><span class='indicator-dot {'green-dot' if has_values(ingredient['LD50_PubChem']) else 'red-dot'}'></span></div>", unsafe_allow_html=True)
+        with col4:
+            st.markdown(f"<div style='text-align: center;'><strong>EFSA:</strong><br><span class='indicator-dot {'green-dot' if has_values(ingredient['EFSA_value']) else 'red-dot'}'></span></div>", unsafe_allow_html=True)
 
         st.markdown("<hr>", unsafe_allow_html=True)
         
@@ -405,5 +443,3 @@ if ingredient_name:
                 st.experimental_rerun()
 else:
     st.write("No ingredient selected.")
-
-
