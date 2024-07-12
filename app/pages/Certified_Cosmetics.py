@@ -23,7 +23,6 @@ st.markdown(
 
 st.markdown("<h1 style='text-align: center; font-size: 50px;'>Certified Cosmetics</h1>", unsafe_allow_html=True)
 
-# Search bars for filtering
 cosmetic_name_search = st.text_input("Search by Cosmetic Name")
 company_name_search = st.text_input("Search by Company Name")
 
@@ -41,7 +40,6 @@ if os.path.exists("app/data/cosmetics.json"):
         cosmetics_data = []
 
     if cosmetics_data:
-        # Apply filters
         if cosmetic_name_search:
             cosmetics_data = [cosmetic for cosmetic in cosmetics_data if cosmetic_name_search.lower() in cosmetic['Cosmetic Name'].lower()]
         if company_name_search:
