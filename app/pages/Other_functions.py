@@ -57,32 +57,32 @@ st.markdown(
         text-align: center;
         font-size: 24px;
         margin-top: 20px;
-        margin-bottom: 20px.
+        margin-bottom: 20px;
     }
     .search-result {
         width: 100%;
-        font-size: 28px.
-        text-align: center.
-        margin-top: 20px.
-        margin-bottom: 20px.
+        font-size: 28px;
+        text-align: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
     .result-buttons {
-        width: 100%.
-        font-size: 18px.
-        margin-top: 10px.
-        margin-bottom: 10px.
-        display: flex.
-        justify-content: space-evenly.
+        width: 100%;
+        font-size: 18px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-evenly;
     }
     .stProgress > div > div > div > div {
-        background-color: red.
+        background-color: red;
     }
     </style>
     """, unsafe_allow_html=True
 )
 
 # Centrare il titolo
-st.markdown("<h1 style='text-align: center. font-size: 50px.'>Other Functions</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>Other Functions</h1>", unsafe_allow_html=True)
 
 # Stato per l'interruzione
 if 'stop_process' not in st.session_state:
@@ -214,21 +214,29 @@ def create_pdf(df):
             c.drawString(margin, y, text)
             c.setFont("LeagueSpartan", 10)
             text = extract_values(row[col])
-            lines = simpleSplit(text, "LeagueSpartan", 10, width - 2*margin)  # Divide il testo in righe
+            lines = simpleSplit(text, "LeagueSpartan", 10, width - 2*margin - 50)  # Divide il testo in righe
             for line in lines:
-                c.drawString(margin + 50, y, line)
+                c.drawString(margin + 100, y, line)  # Aggiungi più margine a sinistra
                 y -= 15
                 if y < margin:
                     c.showPage()
+                    if os.path.exists(logo_path):
+                        c.drawImage(logo_path, margin, height - margin - 50, width=50, preserveAspectRatio=True, mask='auto')
+                    c.setFont("LeagueSpartan-Bold", 36)
+                    c.drawCentredString(width / 2.0, height - margin - 50, "ToxApp PDF")
                     c.setFont("LeagueSpartan", 10)
-                    y = height - margin
+                    y = height - margin - 100
             y -= 15  # Spazio tra i campi
         c.line(margin, y, width - margin, y)  # Aggiungi linea di separazione
         y -= 15
         if y < margin:
             c.showPage()
+            if os.path.exists(logo_path):
+                c.drawImage(logo_path, margin, height - margin - 50, width=50, preserveAspectRatio=True, mask='auto')
+            c.setFont("LeagueSpartan-Bold", 36)
+            c.drawCentredString(width / 2.0, height - margin - 50, "ToxApp PDF")
             c.setFont("LeagueSpartan", 10)
-            y = height - margin
+            y = height - margin - 100
     
     c.save()
     buffer.seek(0)
@@ -282,8 +290,6 @@ if st.button('Create File'):
         st.warning('Please select at least one column.')
 
 st.markdown("<hr>", unsafe_allow_html=True)
-
-
 
 # Sezione per FindPDF
 st.markdown("<h4>Find PDF</h4>", unsafe_allow_html=True)
