@@ -165,7 +165,7 @@ def create_pdf(df):
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
-    margin = 40  
+    margin = 40  # Adjust as needed
 
     font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Regular.ttf')
     bold_font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Bold.ttf')
@@ -200,7 +200,8 @@ def create_pdf(df):
             c.drawString(margin, y, text)
             c.setFont("LeagueSpartan", 10)
             text = extract_values(row[col])
-            lines = simpleSplit(text, "LeagueSpartan", 10, width - 2*margin - 50)  
+            # Split text to fit within the page width
+            lines = simpleSplit(text, "LeagueSpartan", 10, width - 2 * margin - 100)
             for line in lines:
                 c.drawString(margin + 100, y, line)  
                 y -= 15
@@ -227,6 +228,7 @@ def create_pdf(df):
     c.save()
     buffer.seek(0)
     return buffer
+
 
 if st.button('Create File'):
     if selected_columns:
