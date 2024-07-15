@@ -170,6 +170,7 @@ def create_pdf(df):
     width, height = letter
     margin = 40  # Adjust as needed
 
+    # Check if font files exist
     font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Regular.ttf')
     bold_font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Bold.ttf')
     if not os.path.exists(font_path) or not os.path.exists(bold_font_path):
@@ -180,6 +181,7 @@ def create_pdf(df):
     pdfmetrics.registerFont(TTFont('LeagueSpartan-Bold', bold_font_path))
     c.setFont("LeagueSpartan", 10)
     
+    # Check if logo file exists
     logo_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'LOGOTOXAPP.png')
     if os.path.exists(logo_path):
         c.drawImage(logo_path, margin, height - margin - 50, width=50, preserveAspectRatio=True, mask='auto')
@@ -235,6 +237,7 @@ def create_pdf(df):
     c.save()
     buffer.seek(0)
     return buffer
+
 
 
 if st.button('Create File'):
