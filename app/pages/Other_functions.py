@@ -153,6 +153,8 @@ if 'pcpc_ingredientname' in selected_columns:
 file_format = st.selectbox("Select file format", ["CSV", "TXT", "JSON", "PDF"], key="file_format_select")
 
 def extract_values(data):
+    if data is None:
+        return ''
     try:
         data_list = eval(data)
         if isinstance(data_list, list):
@@ -160,6 +162,7 @@ def extract_values(data):
     except:
         return data
     return data
+
 
 def create_pdf(df):
     buffer = BytesIO()
@@ -169,6 +172,10 @@ def create_pdf(df):
 
     font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Regular.ttf')
     bold_font_path = os.path.join(os.path.dirname(__file__), '..', 'static/fonts', 'LeagueSpartan-Bold.ttf')
+    if not os.path.exists(font_path) or not os.path.exists(bold_font_path):
+        st.error("Font files not found.")
+        return None
+
     pdfmetrics.registerFont(TTFont('LeagueSpartan', font_path))
     pdfmetrics.registerFont(TTFont('LeagueSpartan-Bold', bold_font_path))
     c.setFont("LeagueSpartan", 10)
